@@ -1,0 +1,42 @@
+# Netlify Configuration for MedBox
+
+[build]
+  publish = "frontend"
+  functions = "netlify/functions"
+
+# Redirect API calls to Netlify Functions
+[[redirects]]
+  from = "/api/medications"
+  to = "/.netlify/functions/medications"
+  status = 200
+
+[[redirects]]
+  from = "/api/medications/:id"
+  to = "/.netlify/functions/medications"
+  status = 200
+
+[[redirects]]
+  from = "/api/schedules"
+  to = "/.netlify/functions/schedules"
+  status = 200
+
+[[redirects]]
+  from = "/api/dispense-log"
+  to = "/.netlify/functions/dispense-log"
+  status = 200
+
+[[redirects]]
+  from = "/api/sync"
+  to = "/.netlify/functions/sync"
+  status = 200
+
+[[redirects]]
+  from = "/api/notify"
+  to = "/.netlify/functions/notify"
+  status = 200
+
+# SPA fallback (if needed later)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200

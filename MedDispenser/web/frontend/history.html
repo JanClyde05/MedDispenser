@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedBox — Medication dispensing history and event log.">
+  <title>MedBox — History</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="page-header">
+      <h1>💊 MedBox</h1>
+      <nav class="nav">
+        <a href="index.html">Dashboard</a>
+        <a href="medications.html">Medications</a>
+        <a href="history.html" class="active">History</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </header>
+
+    <main>
+      <h2 style="font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: var(--space-6);">
+        Medication History
+      </h2>
+
+      <section class="card">
+        <table class="table" id="history-table">
+          <thead>
+            <tr>
+              <th>Date/Time</th>
+              <th>Medicine</th>
+              <th>Dose</th>
+              <th>Module</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <!-- Populated by JS -->
+            <tr>
+              <td>08/14 07:00</td>
+              <td>Metformin</td>
+              <td>1 tablet</td>
+              <td>Module 1</td>
+              <td><span class="badge badge-success">Completed</span></td>
+            </tr>
+            <tr>
+              <td>08/14 12:00</td>
+              <td>Amlodipine</td>
+              <td>1 tablet</td>
+              <td>Module 2</td>
+              <td><span class="badge badge-warning">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>
