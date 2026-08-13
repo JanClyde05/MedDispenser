@@ -91,12 +91,12 @@ The system therefore does not force the user to install unnecessary expansion mo
                          │       WEB APP           │
                          │   Netlify Hosted UI     │
                          │                         │
-                         │ Medicine                 │
-                         │ Module                   │
-                         │ Dose                     │
-                         │ Date                     │
-                         │ Time                     │
-                         │ Schedule                 │
+                         │ Medicine                │
+                         │ Module                  │
+                         │ Dose                    │
+                         │ Date                    │
+                         │ Time                    │
+                         │ Schedule                │
                          └────────────┬────────────┘
                                       │
                                     HTTPS
@@ -106,8 +106,8 @@ The system therefore does not force the user to install unnecessary expansion mo
                          │        BACKEND          │
                          │                         │
                          │ Netlify Functions       │
-                         │ Database                 │
-                         │ Schedule/API logic       │
+                         │ Database                │
+                         │ Schedule/API logic      │
                          └───────┬─────────┬───────┘
                                  │         │
                                  │         └──────────► ntfy
@@ -119,7 +119,7 @@ The system therefore does not force the user to install unnecessary expansion mo
                                  │
                                  ▼
               ┌───────────────────────────────────────────┐
-              │             MAIN MED MODULE              │
+              │             MAIN MED MODULE               │
               │                                           │
               │ ESP32-S3 SuperMini                        │
               │   Main IoT / system brain                 │
@@ -401,7 +401,7 @@ The important principle is:
       ESP32-C3                    │
       sensors                     │
       buzzer               ┌──────┼──────┐
-                            ▼      ▼      ▼
+                           ▼      ▼      ▼
                           Servo  Servo  Servo...
 ```
 
@@ -539,10 +539,10 @@ Conceptually:
 ```text
         CYLINDER
    ┌──────────────────┐
-   │ ○ ○ ○ ○ ○ ○ ○ ○ │
-   │ ○ ○ ○ ○ ○ ○ ○ ○ │
-   │ ○ ○ ○ ○ ○ ○ ○ ○ │
-   │ ○ ○ ○ ○ ○ ○ ○ ○ │
+   │ ○ ○ ○ ○ ○ ○ ○ ○  │
+   │ ○ ○ ○ ○ ○ ○ ○ ○  │
+   │ ○ ○ ○ ○ ○ ○ ○ ○  │
+   │ ○ ○ ○ ○ ○ ○ ○ ○  │
    │        ↓         │
    │        ↓         │
    └────────┬─────────┘
@@ -1973,12 +1973,12 @@ WebSockets are optional and not required for the base design.
         ▼                            ▼
  MAIN MED MODULE                EXPANSION MODULES
  ┌─────────────────┐          ┌─────────────────────┐
- │ Cylinder        │          │ Cylinder             │
- │ Spiral dispenser│          │ Spiral dispenser     │
- │ Servo: dispense │          │ Servo: dispense      │
- │ Servo: hatch    │          │ Servo: hatch         │
+ │ Cylinder        │          │ Cylinder            │
+ │ Spiral dispenser│          │ Spiral dispenser    │
+ │ Servo: dispense │          │ Servo: dispense     │
+ │ Servo: hatch    │          │ Servo: hatch        │
  │ Proximity       │          └─────────────────────┘
- │ Buzzer           │
+ │ Buzzer          │
  └─────────────────┘
 
                 USB-C 5V POWER
