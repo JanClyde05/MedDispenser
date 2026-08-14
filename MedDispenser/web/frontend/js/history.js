@@ -9,16 +9,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadHistory() {
   const tbody = document.getElementById('history-body');
+  const emptyState = document.getElementById('history-empty');
   if (!tbody) return;
 
   try {
     const logs = await Api.getHistory(100);
     if (logs && logs.length > 0) {
       tbody.innerHTML = logs.map(renderHistoryRow).join('');
+      if (emptyState) emptyState.style.display = 'none';
+    } else {
+      tbody.innerHTML = '';
+      if (emptyState) emptyState.style.display = '';
     }
   } catch (err) {
-    console.warn('Load history (using placeholder data):', err.message);
-    // Placeholder data is already in HTML
+    console.warn('Load history:', err.message);
+    tbody.innerHTML = '';
+    if (emptyState) emptyState.style.display = '';
   }
 }
 
@@ -32,7 +38,22 @@ function renderHistoryRow(log) {
   };
 
   const status = statusMap[log.status] || statusMap.pending;
-  const dateStr = log.actualTime || log.scheduledTime || '—';
+
+  // Format the date nicely
+  let dateStr = '—';
+  const rawDate = log.actualTime || log.scheduledTime;
+  if (rawDate) {
+    try {
+      const d = new Date(rawDate);
+      dateStr = d.toLocaleDateString('en-PH', {
+        month: '2-digit', day: '2-digit',
+      }) + ' ' + d.toLocaleTimeString('en-PH', {
+        hour: '2-digit', minute: '2-digit', hour12: false,
+      });
+    } catch {
+      dateStr = rawDate;
+    }
+  }
 
   return `
     <tr>

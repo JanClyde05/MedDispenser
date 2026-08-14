@@ -30,12 +30,11 @@
 #define BUZZER_CHANNEL        0    // LEDC channel for tone generation
 
 // ── Wi-Fi ─────────────────────────────────────────────────────────────────
-// Credentials should be stored in a separate secrets file or NVS.
-// These are development placeholders only.
-#define WIFI_SSID             "YOUR_WIFI_SSID"
-#define WIFI_PASSWORD         "YOUR_WIFI_PASSWORD"
-#define WIFI_CONNECT_TIMEOUT_MS  15000
-#define WIFI_RETRY_INTERVAL_MS   30000
+// Credentials are stored in NVS (provisioned via captive portal on first boot).
+// No hardcoded SSID/password — the AP captive portal handles everything.
+#define WIFI_AP_SSID           "MedBox_WiFi"        // SoftAP name for provisioning
+#define WIFI_CONNECT_TIMEOUT_MS  15000             // Per-attempt connection timeout
+#define WIFI_RETRY_INTERVAL_MS   30000             // Reconnect retry interval
 
 // ── NTP / Time ────────────────────────────────────────────────────────────
 #define NTP_SERVER            "pool.ntp.org"
@@ -43,10 +42,14 @@
 #define NTP_DAYLIGHT_OFFSET   0
 
 // ── Backend API ───────────────────────────────────────────────────────────
-#define API_BASE_URL          "https://your-medbox-app.netlify.app"
+#define API_BASE_URL          "https://modular-med-dispenser.netlify.app"
 #define API_SYNC_ENDPOINT     "/api/sync"
 #define API_LOG_ENDPOINT      "/api/dispense-log"
+#define API_NOTIFY_ENDPOINT   "/api/notify"
+#define API_DEVICE_ENDPOINT   "/api/devices"
 #define API_SYNC_INTERVAL_MS  300000  // 5 minutes
+#define API_HTTP_TIMEOUT_MS   10000   // HTTP request timeout
+#define API_DEVICE_ID         "medbox-001"   // Unique device identifier
 
 // ── Medication Reminder ───────────────────────────────────────────────────
 #define REMINDER_INTERVAL_MS  300000  // Re-remind every 5 minutes

@@ -23,7 +23,7 @@
       <!-- Add Medication Form -->
       <section class="card" style="margin-bottom: var(--space-8);">
         <div class="card-header">
-          <span class="card-title">Add Medication</span>
+          <span class="card-title">➕ Add Medication</span>
         </div>
         <form id="medication-form">
           <div class="grid grid-2">
@@ -73,17 +73,20 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary" id="btn-save-med">Save Medication</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-med">💾 Save Medication</button>
         </form>
       </section>
 
       <!-- Medication List -->
       <section>
-        <h2 style="font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: var(--space-6);">
-          Configured Medications
-        </h2>
+        <h2 class="section-header">Configured Medications</h2>
         <div class="grid grid-2" id="medication-list">
           <!-- Populated by JS -->
+        </div>
+        <div class="empty-state" id="med-empty" style="display: none;">
+          <div class="empty-state-icon">💊</div>
+          <div class="empty-state-text">No medications configured yet</div>
+          <div class="empty-state-sub">Use the form above to add your first medication.</div>
         </div>
       </section>
     </main>
@@ -92,6 +95,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/medications.js"></script>
 </body>
 </html>

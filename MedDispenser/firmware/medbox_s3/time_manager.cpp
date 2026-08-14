@@ -68,3 +68,15 @@ unsigned long timeGetEpoch() {
   time(&now);
   return (unsigned long)now;
 }
+
+String timeGetISO8601() {
+  struct tm t = _getTime();
+  char buf[30];
+  int offsetH = NTP_GMT_OFFSET_SEC / 3600;
+  int offsetM = (NTP_GMT_OFFSET_SEC % 3600) / 60;
+  snprintf(buf, sizeof(buf), "%04d-%02d-%02dT%02d:%02d:%02d+%02d:%02d",
+           t.tm_year + 1900, t.tm_mon + 1, t.tm_mday,
+           t.tm_hour, t.tm_min, t.tm_sec,
+           offsetH, offsetM);
+  return String(buf);
+}

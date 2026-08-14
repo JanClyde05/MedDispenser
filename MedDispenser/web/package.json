@@ -1,0 +1,9 @@
+{
+  "name": "medbox-web",
+  "version": "1.0.0",
+  "description": "MedBox — Smart Medication Dispenser Web Dashboard & API",
+  "private": true,
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

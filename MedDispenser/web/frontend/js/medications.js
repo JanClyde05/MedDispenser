@@ -67,6 +67,12 @@ async function handleSaveMedication(e) {
     await Api.createMedication(data);
     showToast('Medication saved successfully', 'success');
     document.getElementById('medication-form').reset();
+    // Re-select weekday defaults
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      const day = parseInt(btn.dataset.day);
+      if (day >= 1 && day <= 5) btn.classList.add('selected');
+      else btn.classList.remove('selected');
+    });
     loadMedications();
   } catch (err) {
     console.error('Save medication error:', err);
@@ -77,18 +83,22 @@ async function handleSaveMedication(e) {
 // ── Load & Render Medication List ─────────────────────────────────────
 async function loadMedications() {
   const list = document.getElementById('medication-list');
+  const emptyState = document.getElementById('med-empty');
   if (!list) return;
 
   try {
     const meds = await Api.getMedications();
     if (meds && meds.length > 0) {
       list.innerHTML = meds.map(renderMedicationCard).join('');
+      if (emptyState) emptyState.style.display = 'none';
     } else {
-      list.innerHTML = '<p style="color: var(--color-text-muted);">No medications configured yet.</p>';
+      list.innerHTML = '';
+      if (emptyState) emptyState.style.display = '';
     }
   } catch (err) {
-    console.warn('Load medications (backend not ready):', err.message);
-    list.innerHTML = '<p style="color: var(--color-text-dim);">Connect backend to see medications.</p>';
+    console.warn('Load medications:', err.message);
+    list.innerHTML = '';
+    if (emptyState) emptyState.style.display = '';
   }
 }
 
@@ -99,22 +109,22 @@ function renderMedicationCard(med) {
   const statusText  = med.enabled ? 'Active' : 'Disabled';
 
   return `
-    <div class="card">
+    <div class="med-card">
       <div class="card-header">
         <span class="card-title">${med.name}</span>
         <span class="badge badge-${statusClass}">${statusText}</span>
       </div>
-      <div style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
-        <p>Module ${med.moduleId} · ${med.pillsPerDose} tablet(s) · ${med.time}</p>
-        <p>${activeDays || 'No days selected'}</p>
-        ${med.startDate ? `<p>From: ${med.startDate}</p>` : ''}
-        ${med.endDate ? `<p>Until: ${med.endDate}</p>` : ''}
+      <div class="med-card-detail">
+        <p>📦 Module ${med.moduleId} · 💊 ${med.pillsPerDose} tablet(s) · ⏰ ${med.time}</p>
+        <p>📅 ${activeDays || 'No days selected'}</p>
+        ${med.startDate ? `<p>🟢 From: ${med.startDate}</p>` : ''}
+        ${med.endDate ? `<p>🔴 Until: ${med.endDate}</p>` : ''}
       </div>
-      <div style="margin-top: var(--space-4); display: flex; gap: var(--space-2);">
-        <button class="btn btn-ghost" onclick="toggleMedication('${med.id}', ${!med.enabled})">
-          ${med.enabled ? 'Disable' : 'Enable'}
+      <div class="med-card-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleMedication('${med.id}', ${!med.enabled})">
+          ${med.enabled ? '⏸️ Disable' : '▶️ Enable'}
         </button>
-        <button class="btn btn-danger" onclick="deleteMedication('${med.id}')">Delete</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMedication('${med.id}')">🗑️ Delete</button>
       </div>
     </div>
   `;

@@ -1,10 +1,14 @@
 /**
  * MedBox — Schedules API (Netlify Function)
  * Returns schedule data derived from medications.
- * Schedules are embedded in medication records (time + daysOfWeek).
+ * Reads from the medications Netlify Blob store.
  */
 
+const { getStore, connectLambda } = require('@netlify/blobs');
+
 exports.handler = async (event, context) => {
+  connectLambda(event);
+
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -19,33 +23,43 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // TODO: Query database for medications and build schedule view
-    // For now, return a stub response
-    const today = event.queryStringParameters?.today === 'true';
+    const store = getStore('medications');
+    const index = await store.get('_index', { type: 'json' }) || [];
 
-    const stubSchedules = [
-      {
-        medicineName: 'Metformin',
-        moduleId: 1,
-        pillsPerDose: 1,
-        time: '07:00',
-        daysOfWeek: 0b0111110, // Mon-Fri
-        status: 'pending',
-      },
-      {
-        medicineName: 'Amlodipine',
-        moduleId: 2,
-        pillsPerDose: 1,
-        time: '12:00',
-        daysOfWeek: 0b1111111, // Every day
-        status: 'pending',
-      },
-    ];
+    const schedules = [];
+    for (const id of index) {
+      const med = await store.get(`med_${id}`, { type: 'json' });
+      if (med && med.enabled) {
+        schedules.push({
+          medicationId: med.id,
+          medicineName: med.name,
+          moduleId: med.moduleId,
+          pillsPerDose: med.pillsPerDose,
+          time: med.time,
+          daysOfWeek: med.daysOfWeek,
+          startDate: med.startDate,
+          endDate: med.endDate,
+          status: 'pending',
+        });
+      }
+    }
+
+    // If ?today=true, filter to only schedules active today
+    const today = event.queryStringParameters?.today === 'true';
+    if (today) {
+      const dow = new Date().getDay(); // 0=Sun
+      const filtered = schedules.filter(s => (s.daysOfWeek >> dow) & 1);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(filtered),
+      };
+    }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(stubSchedules),
+      body: JSON.stringify(schedules),
     };
 
   } catch (err) {

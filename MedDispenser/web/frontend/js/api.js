@@ -4,7 +4,7 @@
  * All API calls go through these functions.
  */
 
-const API_BASE = '/api';  // Netlify Functions are mounted at /.netlify/functions/ or redirected
+const API_BASE = '/api';
 
 const Api = {
   // ── Medications ─────────────────────────────────────────────────────
@@ -66,6 +66,23 @@ const Api = {
   async getDeviceSync() {
     const res = await fetch(`${API_BASE}/sync`);
     if (!res.ok) throw new Error(`GET sync failed: ${res.status}`);
+    return res.json();
+  },
+
+  // ── Devices ─────────────────────────────────────────────────────────
+  async getDevices() {
+    const res = await fetch(`${API_BASE}/devices`);
+    if (!res.ok) throw new Error(`GET devices failed: ${res.status}`);
+    return res.json();
+  },
+
+  async registerDevice(data) {
+    const res = await fetch(`${API_BASE}/devices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`POST device failed: ${res.status}`);
     return res.json();
   },
 };

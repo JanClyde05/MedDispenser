@@ -1,17 +1,46 @@
 /**
  * MedBox — Medications API (Netlify Function)
  * CRUD operations for medication records.
- *
- * Database: Stub — replace with actual DB client (Supabase, MongoDB, etc.)
- * when database choice is finalized.
+ * Persistent storage via Netlify Blobs.
  */
 
-// ── Stub Data Store (replace with real DB) ────────────────────────────
-let medications = [];
-let nextId = 1;
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+const STORE_NAME = 'medications';
+
+async function getAllMedications(store) {
+  const list = await store.get('_index', { type: 'json' });
+  if (!list || !Array.isArray(list)) return [];
+  const meds = [];
+  for (const id of list) {
+    const med = await store.get(`med_${id}`, { type: 'json' });
+    if (med) meds.push(med);
+  }
+  return meds;
+}
+
+async function getNextId(store) {
+  const counter = await store.get('_counter');
+  const next = counter ? parseInt(counter) + 1 : 1;
+  await store.set('_counter', String(next));
+  return next;
+}
+
+async function addToIndex(store, id) {
+  const list = await store.get('_index', { type: 'json' }) || [];
+  list.push(id);
+  await store.set('_index', JSON.stringify(list));
+}
+
+async function removeFromIndex(store, id) {
+  let list = await store.get('_index', { type: 'json' }) || [];
+  list = list.filter(i => i !== id);
+  await store.set('_index', JSON.stringify(list));
+}
 
 exports.handler = async (event, context) => {
-  const { httpMethod, body, path } = event;
+  connectLambda(event);
+
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -19,26 +48,29 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  // CORS preflight
-  if (httpMethod === 'OPTIONS') {
+  if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
 
   try {
+    const store = getStore(STORE_NAME);
+
     // ── GET: List all medications ──────────────────────────────────
-    if (httpMethod === 'GET') {
+    if (event.httpMethod === 'GET') {
+      const meds = await getAllMedications(store);
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(medications),
+        body: JSON.stringify(meds),
       };
     }
 
     // ── POST: Create medication ───────────────────────────────────
-    if (httpMethod === 'POST') {
-      const data = JSON.parse(body);
+    if (event.httpMethod === 'POST') {
+      const data = JSON.parse(event.body);
+      const id = await getNextId(store);
       const med = {
-        id: String(nextId++),
+        id: String(id),
         name: data.name,
         moduleId: data.moduleId || 1,
         pillsPerDose: data.pillsPerDose || 1,
@@ -49,7 +81,8 @@ exports.handler = async (event, context) => {
         enabled: data.enabled !== false,
         createdAt: new Date().toISOString(),
       };
-      medications.push(med);
+      await store.set(`med_${med.id}`, JSON.stringify(med));
+      await addToIndex(store, med.id);
       return {
         statusCode: 201,
         headers,
@@ -58,27 +91,29 @@ exports.handler = async (event, context) => {
     }
 
     // ── PUT: Update medication ────────────────────────────────────
-    if (httpMethod === 'PUT') {
-      const segments = path.split('/');
+    if (event.httpMethod === 'PUT') {
+      const segments = event.path.split('/');
       const id = segments[segments.length - 1];
-      const data = JSON.parse(body);
-      const idx = medications.findIndex(m => m.id === id);
-      if (idx === -1) {
+      const existing = await store.get(`med_${id}`, { type: 'json' });
+      if (!existing) {
         return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
       }
-      medications[idx] = { ...medications[idx], ...data, updatedAt: new Date().toISOString() };
+      const data = JSON.parse(event.body);
+      const updated = { ...existing, ...data, updatedAt: new Date().toISOString() };
+      await store.set(`med_${id}`, JSON.stringify(updated));
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(medications[idx]),
+        body: JSON.stringify(updated),
       };
     }
 
     // ── DELETE: Remove medication ─────────────────────────────────
-    if (httpMethod === 'DELETE') {
-      const segments = path.split('/');
+    if (event.httpMethod === 'DELETE') {
+      const segments = event.path.split('/');
       const id = segments[segments.length - 1];
-      medications = medications.filter(m => m.id !== id);
+      await store.delete(`med_${id}`);
+      await removeFromIndex(store, id);
       return {
         statusCode: 200,
         headers,

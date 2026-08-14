@@ -35,6 +35,11 @@
   to = "/.netlify/functions/notify"
   status = 200
 
+[[redirects]]
+  from = "/api/devices"
+  to = "/.netlify/functions/devices"
+  status = 200
+
 # SPA fallback (if needed later)
 # [[redirects]]
 #   from = "/*"

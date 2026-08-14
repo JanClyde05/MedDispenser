@@ -19,5 +19,6 @@ int   timeGetMinute();
 int   timeGetSecond();
 int   timeGetDayOfWeek();             // 0=Sunday, 6=Saturday
 unsigned long timeGetEpoch();
+String timeGetISO8601();              // "YYYY-MM-DDTHH:MM:SS+08:00"
 
 #endif

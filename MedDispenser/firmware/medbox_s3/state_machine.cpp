@@ -11,8 +11,10 @@
 #include "proximity.h"
 #include "buzzer.h"
 #include "uart_command.h"
+#include "protocol.h"
 #include "schedule_manager.h"
 #include "time_manager.h"
+#include "api_client.h"
 
 static SystemState _state = STATE_IDLE;
 static MedSchedule _activeSchedule;
@@ -47,7 +49,18 @@ void stateMachineUpdate() {
       buzzerPatternStart(BUZZER_PATTERN_COUNT, BUZZER_ON_DURATION_MS / BUZZER_PATTERN_COUNT, 200);
       _reminderCount = 1;
       _lastReminderMs = now;
-      // TODO: trigger ntfy notification via apiClientNotify()
+
+      // Send ntfy notification via backend
+      {
+        char timeBuf[6];
+        snprintf(timeBuf, sizeof(timeBuf), "%02d:%02d",
+                 _activeSchedule.hour, _activeSchedule.minute);
+        apiClientNotify(_activeSchedule.moduleId,
+                        _activeSchedule.medicineName,
+                        _activeSchedule.pillsPerDose,
+                        timeBuf, "reminder");
+      }
+
       Serial.print(F("REMINDER: "));
       Serial.print(_activeSchedule.medicineName);
       Serial.print(F(" Module "));
@@ -69,7 +82,23 @@ void stateMachineUpdate() {
         _reminderCount++;
         if (_reminderCount > REMINDER_MAX_RETRIES) {
           Serial.println(F("Max reminders reached — logging missed dose"));
-          // TODO: log missed dose to backend
+
+          // Log missed dose to backend
+          apiClientLogDispense(_activeSchedule.moduleId,
+                               _activeSchedule.medicineName,
+                               _activeSchedule.pillsPerDose, "missed");
+
+          // Send missed notification via ntfy
+          {
+            char timeBuf[6];
+            snprintf(timeBuf, sizeof(timeBuf), "%02d:%02d",
+                     _activeSchedule.hour, _activeSchedule.minute);
+            apiClientNotify(_activeSchedule.moduleId,
+                            _activeSchedule.medicineName,
+                            _activeSchedule.pillsPerDose,
+                            timeBuf, "missed");
+          }
+
           scheduleMarkHandled(_activeSchedule.moduleId,
                               _activeSchedule.hour,
                               _activeSchedule.minute);
@@ -128,7 +157,11 @@ void stateMachineUpdate() {
       Serial.print(F(" Module "));
       Serial.println(_activeSchedule.moduleId);
 
-      // TODO: log completion to backend via apiClientLogDispense()
+      // Log successful dispense to backend
+      apiClientLogDispense(_activeSchedule.moduleId,
+                           _activeSchedule.medicineName,
+                           _activeSchedule.pillsPerDose, "dispensed");
+
       scheduleMarkHandled(_activeSchedule.moduleId,
                           _activeSchedule.hour,
                           _activeSchedule.minute);

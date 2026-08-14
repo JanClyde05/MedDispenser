@@ -9,10 +9,11 @@
  *   - UART command interface to ESP32-C3 servo controller
  *
  * Arduino IDE Board: ESP32-S3 Dev Module (or SuperMini variant)
- * Partition Scheme: Default 4MB with spiffs (for NVS schedule storage)
+ * Partition Scheme: Default 4MB with spiffs (NVS + LittleFS for portal assets)
  */
 
 #include "config.h"
+#include "nvs_store.h"
 #include "wifi_manager.h"
 #include "time_manager.h"
 #include "schedule_manager.h"
@@ -38,6 +39,7 @@ void setup() {
   buzzerInit();
   proximityInit();
   uartCommandInit();
+  nvsStoreInit();
   wifiManagerInit();
   timeManagerInit();
   scheduleManagerInit();
@@ -52,7 +54,7 @@ void setup() {
 
 void loop() {
   // ── Non-blocking subsystem updates ─────────────────────────────────────
-  wifiManagerUpdate();        // Maintain Wi-Fi connection
+  wifiManagerUpdate();        // WiFi provisioning + connection management
   timeManagerUpdate();        // NTP sync checks
   scheduleManagerUpdate();    // Evaluate active schedules
   stateMachineUpdate();       // Run medication event state machine
@@ -76,7 +78,8 @@ void handleSerialDebug() {
   if (cmd == "status") {
     Serial.println(F("--- MedBox Status ---"));
     Serial.print(F("Wi-Fi: "));
-    Serial.println(wifiIsConnected() ? "Connected" : "Disconnected");
+    Serial.print(wifiIsConnected() ? "Connected" : "Disconnected");
+    Serial.print(F(" (")); Serial.print(wifiGetIP()); Serial.println(F(")"));
     Serial.print(F("Time: "));
     Serial.println(timeManagerGetTimeString());
     Serial.print(F("State: "));
@@ -110,8 +113,21 @@ void handleSerialDebug() {
     Serial.println(F("DEBUG: Force backend sync"));
     apiClientForceSync();
 
+  } else if (cmd == "wifi") {
+    Serial.print(F("WiFi State: "));
+    switch (wifiGetState()) {
+      case WIFI_DISCONNECTED: Serial.println(F("DISCONNECTED")); break;
+      case WIFI_CONNECTING:   Serial.println(F("CONNECTING")); break;
+      case WIFI_CONNECTED:    Serial.print(F("CONNECTED — ")); Serial.println(wifiGetIP()); break;
+      case WIFI_AP_MODE:      Serial.print(F("AP MODE — ")); Serial.println(wifiGetIP()); break;
+    }
+
+  } else if (cmd == "forget") {
+    Serial.println(F("Forgetting WiFi credentials and restarting AP..."));
+    wifiForgetNetwork();
+
   } else if (cmd == "help") {
-    Serial.println(F("Commands: status, dispense1, open1, close1, buzz, ping, sync, help"));
+    Serial.println(F("Commands: status, wifi, forget, dispense1, open1, close1, buzz, ping, sync, help"));
 
   } else {
     Serial.print(F("Unknown command: "));
