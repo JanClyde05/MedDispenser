@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 780" width="100%" height="100%" style="background:#0f172a; font-family: system-ui, -apple-system, sans-serif;">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrPurple1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c084fc" />
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-size: 22px; font-weight: 700; fill: #f8fafc; }
+    .sub { font-size: 13px; fill: #94a3b8; }
+    .actor { font-size: 14px; font-weight: 700; fill: #f1f5f9; }
+    .msg { font-size: 12px; font-weight: 500; fill: #cbd5e1; }
+    .num { font-size: 11px; font-weight: 700; fill: #0f172a; }
+  </style>
+
+  <text x="40" y="40" class="title">MedBox — End-to-End Sequence Diagram</text>
+  <text x="40" y="65" class="sub">Complete Step-by-Step Data &amp; Execution Pipeline across Web, Cloud, ESP32, Servos, and Phone</text>
+
+  <!-- Lifelines -->
+  <!-- 1. Patient / Caregiver (X=100) -->
+  <!-- 2. Web Dashboard (X=300) -->
+  <!-- 3. Netlify Backend (X=500) -->
+  <!-- 4. ESP32-S3 Main (X=700) -->
+  <!-- 5. ESP32-C3 Motion (X=900) -->
+  <!-- 6. Patient Phone (X=1020) -->
+
+  <g stroke="#334155" stroke-width="1.5" stroke-dasharray="4">
+    <line x1="100" y1="120" x2="100" y2="720" />
+    <line x1="300" y1="120" x2="300" y2="720" />
+    <line x1="500" y1="120" x2="500" y2="720" />
+    <line x1="700" y1="120" x2="700" y2="720" />
+    <line x1="900" y1="120" x2="900" y2="720" />
+    <line x1="1020" y1="120" x2="1020" y2="720" />
+  </g>
+
+  <!-- Actor Boxes -->
+  <rect x="30" y="90" width="140" height="35" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+  <text x="100" y="113" class="actor" text-anchor="middle">👤 Patient</text>
+
+  <rect x="230" y="90" width="140" height="35" rx="6" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1.5" />
+  <text x="300" y="113" class="actor" text-anchor="middle">💻 Web UI</text>
+
+  <rect x="430" y="90" width="140" height="35" rx="6" fill="#1e3a8a" stroke="#06b6d4" stroke-width="1.5" />
+  <text x="500" y="113" class="actor" text-anchor="middle">☁️ Netlify API</text>
+
+  <rect x="630" y="90" width="140" height="35" rx="6" fill="#155e75" stroke="#22d3ee" stroke-width="1.5" />
+  <text x="700" y="113" class="actor" text-anchor="middle">🧠 ESP32-S3</text>
+
+  <rect x="830" y="90" width="140" height="35" rx="6" fill="#065f46" stroke="#10b981" stroke-width="1.5" />
+  <text x="900" y="113" class="actor" text-anchor="middle">⚙️ ESP32-C3</text>
+
+  <rect x="960" y="90" width="120" height="35" rx="6" fill="#581c87" stroke="#c084fc" stroke-width="1.5" />
+  <text x="1020" y="113" class="actor" text-anchor="middle">📱 Phone</text>
+
+  <!-- Sequence Steps -->
+  <!-- Step 1: Web UI Schedule creation -->
+  <path d="M 100 160 L 300 160" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="200" y="152" class="msg" text-anchor="middle">1. Add Medication Schedule</text>
+
+  <path d="M 300 190 L 500 190" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="400" y="182" class="msg" text-anchor="middle">2. POST /api/medications</text>
+
+  <!-- Step 2: ESP32 Periodic Sync -->
+  <path d="M 700 240 L 500 240" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="600" y="232" class="msg" text-anchor="middle">3. GET /api/sync (Every 5 min)</text>
+
+  <path d="M 500 270 L 700 270" stroke="#34d399" stroke-width="2" stroke-dasharray="4" marker-end="url(#arr1)" />
+  <text x="600" y="262" class="msg" text-anchor="middle">4. Return JSON Schedules (Save NVS)</text>
+
+  <!-- Step 3: Alarm Reached -->
+  <path d="M 700 320 L 500 320" stroke="#c084fc" stroke-width="2" marker-end="url(#arrPurple1)" />
+  <text x="600" y="312" class="msg" text-anchor="middle">5. POST /api/notify (Reminder)</text>
+
+  <path d="M 500 350 L 1020 350" stroke="#c084fc" stroke-width="2.5" marker-end="url(#arrPurple1)" />
+  <text x="760" y="342" class="msg" text-anchor="middle" fill="#c084fc">6. Push Phone Alert ("💊 Medication Reminder")</text>
+
+  <!-- Step 4: Proximity Detection -->
+  <path d="M 100 410 L 700 410" stroke="#fbbf24" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="400" y="402" class="msg" text-anchor="middle" fill="#fbbf24">7. Patient walks up to MedBox (IR Sensor Detected)</text>
+
+  <!-- Step 5: Motor Dispense -->
+  <path d="M 700 470 L 900 470" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="800" y="462" class="msg" text-anchor="middle">8. UART CMD_OPEN (Hatch Opens)</text>
+
+  <path d="M 700 520 L 900 520" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="800" y="512" class="msg" text-anchor="middle">9. UART CMD_DISPENSE (Rotor Steps Pill Drop)</text>
+
+  <!-- Step 6: Patient takes pill & Hatch Close -->
+  <path d="M 700 580 L 100 580" stroke="#34d399" stroke-width="2" stroke-dasharray="4" marker-end="url(#arr1)" />
+  <text x="400" y="572" class="msg" text-anchor="middle" fill="#34d399">10. Patient retrieves pill (15s Hatch Open Window)</text>
+
+  <path d="M 700 630 L 900 630" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="800" y="622" class="msg" text-anchor="middle">11. UART CMD_CLOSE (Hatch Closes)</text>
+
+  <!-- Step 7: Cloud Logging -->
+  <path d="M 700 680 L 500 680" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)" />
+  <text x="600" y="672" class="msg" text-anchor="middle">12. POST /api/dispense-log ("dispensed")</text>
+</svg>

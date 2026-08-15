@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 850" width="100%" height="100%" style="background:#0f172a; font-family: system-ui, -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="blueCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="purpleCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#581c87" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="cyanCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#155e75" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c084fc" />
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-size: 24px; font-weight: 700; fill: #f8fafc; }
+    .subtitle { font-size: 14px; fill: #94a3b8; }
+    .section-title { font-size: 16px; font-weight: 600; fill: #38bdf8; }
+    .node-title { font-size: 15px; font-weight: 600; fill: #f1f5f9; }
+    .node-sub { font-size: 12px; fill: #94a3b8; }
+    .badge { font-size: 11px; font-weight: 600; fill: #38bdf8; }
+    .edge-label { font-size: 11px; fill: #cbd5e1; font-weight: 500; }
+  </style>
+
+  <!-- Header -->
+  <text x="40" y="45" class="title">MedBox — System Architecture Overview</text>
+  <text x="40" y="70" class="subtitle">Cloud Backend, Phone Push Alerts, Dual ESP32 Controller &amp; Modular Servos</text>
+
+  <!-- CLOUD LAYER -->
+  <rect x="40" y="100" width="1020" height="200" rx="16" fill="url(#cloudGrad)" stroke="#334155" stroke-width="2" />
+  <text x="60" y="130" class="section-title">☁️ CLOUD LAYER (Netlify Serverless + ntfy Push)</text>
+
+  <!-- Web Dashboard -->
+  <rect x="70" y="150" width="260" height="120" rx="12" fill="url(#blueCard)" stroke="#3b82f6" stroke-width="1.5" />
+  <text x="90" y="180" class="node-title">💻 Web Dashboard</text>
+  <text x="90" y="205" class="node-sub">• HTML/CSS/JS Frontend</text>
+  <text x="90" y="225" class="node-sub">• Schedule Management UI</text>
+  <text x="90" y="245" class="node-sub">• Instant "Test Alert" Trigger</text>
+
+  <!-- Netlify API -->
+  <rect x="400" y="150" width="300" height="120" rx="12" fill="url(#blueCard)" stroke="#06b6d4" stroke-width="1.5" />
+  <text x="420" y="180" class="node-title">⚡ Netlify Functions &amp; Blobs</text>
+  <text x="420" y="205" class="node-sub">• /api/sync (Schedule Distribution)</text>
+  <text x="420" y="225" class="node-sub">• /api/notify (ntfy Publisher)</text>
+  <text x="420" y="245" class="node-sub">• /api/dispense-log (Audit History)</text>
+
+  <!-- ntfy Server -->
+  <rect x="770" y="150" width="260" height="120" rx="12" fill="url(#purpleCard)" stroke="#a855f7" stroke-width="1.5" />
+  <text x="790" y="180" class="node-title">🔔 ntfy.sh Server</text>
+  <text x="790" y="205" class="node-sub">• Topic: med-box-notification</text>
+  <text x="790" y="225" class="node-sub">• High-Priority Push Gateway</text>
+  <text x="790" y="245" class="node-sub">• Phone Alert Dispatcher</text>
+
+  <!-- Connectors Cloud -->
+  <path d="M 330 210 L 400 210" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <path d="M 700 210 L 770 210" stroke="#c084fc" stroke-width="2" marker-end="url(#arrowPurple)" />
+
+  <!-- PHONE LAYER -->
+  <rect x="770" y="340" width="260" height="100" rx="12" fill="url(#purpleCard)" stroke="#c084fc" stroke-width="2" filter="url(#glow)" />
+  <text x="790" y="375" class="node-title">📱 Patient Mobile Phone</text>
+  <text x="790" y="400" class="node-sub">• ntfy App Alert</text>
+  <text x="790" y="420" class="node-sub">• "💊 Medication Reminder"</text>
+  <path d="M 900 270 L 900 340" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="4" marker-end="url(#arrowPurple)" />
+  <text x="910" y="310" class="edge-label" fill="#c084fc">Push Alert</text>
+
+  <!-- HARDWARE LAYER -->
+  <rect x="40" y="470" width="1020" height="340" rx="16" fill="url(#cloudGrad)" stroke="#334155" stroke-width="2" />
+  <text x="60" y="500" class="section-title">📦 HARDWARE LAYER (MedBox Physical Unit)</text>
+
+  <!-- ESP32-S3 Main Brain -->
+  <rect x="70" y="525" width="290" height="260" rx="12" fill="url(#blueCard)" stroke="#3b82f6" stroke-width="2" filter="url(#glow)" />
+  <text x="90" y="555" class="node-title">🧠 ESP32-S3 (Main Brain)</text>
+  <text x="90" y="585" class="node-sub">• SoftAP Captive Portal Wi-Fi</text>
+  <text x="90" y="610" class="node-sub">• NTP Real-Time Clock Sync</text>
+  <text x="90" y="635" class="node-sub">• NVS Local Flash Schedule</text>
+  <text x="90" y="660" class="node-sub">• IR Proximity Sensor Gate</text>
+  <text x="90" y="685" class="node-sub">• Piezo Buzzer Controller</text>
+  <text x="90" y="710" class="node-sub">• State Machine Logic</text>
+
+  <!-- ESP32-C3 Motion -->
+  <rect x="430" y="525" width="260" height="260" rx="12" fill="url(#cyanCard)" stroke="#06b6d4" stroke-width="2" />
+  <text x="450" y="555" class="node-title">⚙️ ESP32-C3 (Motion Brain)</text>
+  <text x="450" y="585" class="node-sub">• Dedicated Servo Controller</text>
+  <text x="450" y="610" class="node-sub">• UART Packet Parser</text>
+  <text x="450" y="635" class="node-sub">• 6-Channel PWM Driver</text>
+  <text x="450" y="660" class="node-sub">• Dispenser Rotor Driver</text>
+  <text x="450" y="685" class="node-sub">• Hatch Door Opener</text>
+
+  <!-- Actuators -->
+  <rect x="750" y="525" width="280" height="260" rx="12" fill="url(#blueCard)" stroke="#10b981" stroke-width="1.5" />
+  <text x="770" y="555" class="node-title">🤖 Modular Motors &amp; Servos</text>
+  <text x="770" y="585" class="node-sub">• Module 1: Dispenser &amp; Hatch</text>
+  <text x="770" y="610" class="node-sub">• Module 2: Dispenser &amp; Hatch</text>
+  <text x="770" y="635" class="node-sub">• Module 3: Dispenser &amp; Hatch</text>
+  <text x="770" y="670" style="font-size: 11px; fill: #10b981; font-weight:600;">• Gravity Reservoir</text>
+  <text x="770" y="690" style="font-size: 11px; fill: #10b981; font-weight:600;">• Anti-Double-Feed Pocket</text>
+
+  <!-- Hardware Interconnects -->
+  <path d="M 360 655 L 430 655" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrow)" />
+  <text x="375" y="645" class="edge-label">UART</text>
+
+  <path d="M 690 655 L 750 655" stroke="#10b981" stroke-width="3" marker-end="url(#arrow)" />
+  <text x="705" y="645" class="edge-label">PWM</text>
+
+  <!-- HTTPS Sync arrow S3 -> Netlify API -->
+  <path d="M 215 525 L 215 360 L 520 360 L 520 270" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6" marker-end="url(#arrow)" />
+  <text x="225" y="380" class="edge-label">HTTPS GET /api/sync &amp; POST /api/notify</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" width="100%" height="100%" style="background:#0f172a; font-family: system-ui, -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="pwrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#854d0e" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <marker id="arrAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-size: 22px; font-weight: 700; fill: #f8fafc; }
+    .sub { font-size: 13px; fill: #94a3b8; }
+    .box-title { font-size: 15px; font-weight: 700; fill: #fef08a; }
+    .box-sub { font-size: 12px; fill: #cbd5e1; }
+  </style>
+
+  <text x="40" y="45" class="title">MedBox — Electrical Power Topology</text>
+  <text x="40" y="70" class="sub">Dual Power Rail Isolation (Logic 3.3V vs High-Current 5V Servo Rail)</text>
+
+  <!-- Power Source -->
+  <rect x="50" y="150" width="180" height="140" rx="12" fill="url(#pwrGrad)" stroke="#eab308" stroke-width="2" />
+  <text x="70" y="190" class="box-title">🔌 USB-C Input</text>
+  <text x="70" y="215" class="box-sub">5V DC / 2A–3A</text>
+  <text x="70" y="240" class="box-sub">Main Power Input</text>
+
+  <!-- Fuse / Protection -->
+  <rect x="280" y="150" width="160" height="140" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" />
+  <text x="300" y="190" class="box-title">🛡️ Protection</text>
+  <text x="300" y="215" class="box-sub">• Reverse Polarity</text>
+  <text x="300" y="240" class="box-sub">• Overcurrent Fuse</text>
+  <text x="300" y="265" class="box-sub">• Bulk Capacitance</text>
+
+  <!-- Logic Branch -->
+  <rect x="520" y="110" width="330" height="100" rx="12" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1.5" />
+  <text x="540" y="145" class="box-title" style="fill:#93c5fd;">💻 3.3V Logic Rail (LDO Regulated)</text>
+  <text x="540" y="170" class="box-sub">• Powers ESP32-S3, ESP32-C3 &amp; IR Proximity Sensor</text>
+
+  <!-- Servo Bus Branch -->
+  <rect x="520" y="240" width="330" height="100" rx="12" fill="#065f46" stroke="#10b981" stroke-width="1.5" />
+  <text x="540" y="275" class="box-title" style="fill:#6ee7b7;">⚡ 5V Dedicated Servo Power Bus</text>
+  <text x="540" y="300" class="box-sub">• Direct 5V power to 6 Servos (Prevents Microcontroller Reset)</text>
+
+  <!-- Common GND Bar -->
+  <rect x="50" y="370" width="800" height="35" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="1.5" />
+  <text x="340" y="393" style="font-size:14px; font-weight:700; fill:#f8fafc;">⏚ Shared Reference Ground (Common GND)</text>
+
+  <!-- Lines -->
+  <path d="M 230 220 L 280 220" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrAmber)" />
+  <path d="M 440 220 L 480 220 L 480 160 L 520 160" fill="none" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrAmber)" />
+  <path d="M 480 220 L 480 290 L 520 290" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrAmber)" />
+</svg>

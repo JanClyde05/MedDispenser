@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" style="background:#0f172a; font-family: system-ui, -apple-system, sans-serif;">
+  <defs>
+    <marker id="arrBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f87171" />
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-size: 22px; font-weight: 700; fill: #f8fafc; }
+    .sub { font-size: 13px; fill: #94a3b8; }
+    .state-box { font-size: 14px; font-weight: 700; fill: #f1f5f9; }
+    .state-desc { font-size: 11px; fill: #94a3b8; }
+    .label { font-size: 11px; font-weight: 600; fill: #38bdf8; }
+    .err-label { font-size: 11px; font-weight: 600; fill: #f87171; }
+  </style>
+
+  <text x="40" y="45" class="title">MedBox — Firmware State Machine Flow</text>
+  <text x="40" y="70" class="sub">ESP32-S3 State Machine Logic (Proximity Safety &amp; Dispensing Pipeline)</text>
+
+  <!-- State Nodes -->
+  <!-- IDLE -->
+  <rect x="50" y="250" width="140" height="70" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2" />
+  <text x="100" y="280" class="state-box" text-anchor="middle">IDLE</text>
+  <text x="100" y="300" class="state-desc" text-anchor="middle">Wait schedule match</text>
+
+  <!-- REMINDER -->
+  <rect x="260" y="250" width="160" height="70" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2" />
+  <text x="340" y="280" class="state-box" text-anchor="middle">REMINDER</text>
+  <text x="340" y="300" class="state-desc" text-anchor="middle">Buzz + ntfy Push Alert</text>
+
+  <!-- WAITING_FOR_USER -->
+  <rect x="490" y="250" width="180" height="70" rx="10" fill="#581c87" stroke="#c084fc" stroke-width="2" />
+  <text x="580" y="280" class="state-box" text-anchor="middle">WAITING_FOR_USER</text>
+  <text x="580" y="300" class="state-desc" text-anchor="middle">Poll IR Proximity Sensor</text>
+
+  <!-- HATCH_OPENING -->
+  <rect x="740" y="130" width="180" height="65" rx="10" fill="#155e75" stroke="#22d3ee" stroke-width="2" />
+  <text x="830" y="160" class="state-box" text-anchor="middle">HATCH_OPENING</text>
+  <text x="830" y="180" class="state-desc" text-anchor="middle">Send CMD_OPEN to C3</text>
+
+  <!-- DISPENSING -->
+  <rect x="740" y="250" width="180" height="65" rx="10" fill="#065f46" stroke="#34d399" stroke-width="2" />
+  <text x="830" y="280" class="state-box" text-anchor="middle">DISPENSING</text>
+  <text x="830" y="300" class="state-desc" text-anchor="middle">Send CMD_DISPENSE</text>
+
+  <!-- USER_TAKING -->
+  <rect x="740" y="370" width="180" height="65" rx="10" fill="#155e75" stroke="#22d3ee" stroke-width="2" />
+  <text x="830" y="400" class="state-box" text-anchor="middle">USER_TAKING</text>
+  <text x="830" y="420" class="state-desc" text-anchor="middle">Wait 15s hatch window</text>
+
+  <!-- HATCH_CLOSING & COMPLETED -->
+  <rect x="490" y="370" width="180" height="65" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2" />
+  <text x="580" y="400" class="state-box" text-anchor="middle">HATCH_CLOSING</text>
+  <text x="580" y="420" class="state-desc" text-anchor="middle">CMD_CLOSE &amp; Log to DB</text>
+
+  <!-- MISSED DOSE -->
+  <rect x="490" y="130" width="180" height="65" rx="10" fill="#7f1d1d" stroke="#f87171" stroke-width="2" />
+  <text x="580" y="160" class="state-box" text-anchor="middle">MISSED_DOSE</text>
+  <text x="580" y="180" class="state-desc" text-anchor="middle">Timeout 1h -> Log missed</text>
+
+  <!-- Connectors -->
+  <path d="M 190 285 L 260 285" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" />
+  <path d="M 420 285 L 490 285" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" />
+  
+  <!-- Proximity True -->
+  <path d="M 670 270 L 740 162" stroke="#34d399" stroke-width="2" marker-end="url(#arrBlue)" />
+  <text x="670" y="210" class="label" fill="#34d399">User Present</text>
+
+  <!-- Proximity Timeout -->
+  <path d="M 580 250 L 580 195" stroke="#f87171" stroke-width="2" marker-end="url(#arrRed)" />
+  <text x="590" y="230" class="err-label">Max Retries</text>
+
+  <path d="M 830 195 L 830 250" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" />
+  <path d="M 830 315 L 830 370" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" />
+  <path d="M 740 402 L 670 402" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" />
+  <path d="M 490 402 L 120 402 L 120 320" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrBlue)" fill="none" />
+  <path d="M 490 162 L 120 162 L 120 250" stroke="#f87171" stroke-width="2" marker-end="url(#arrRed)" fill="none" />
+</svg>

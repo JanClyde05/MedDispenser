@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedBox — System Architecture, Flowcharts, and Operation Diagrams. Download & share vector SVG diagrams.">
+  <title>MedBox — Architecture & Diagrams</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .diagram-card {
+      background: var(--color-surface, #1e293b);
+      border: 1px solid var(--color-border, #334155);
+      border-radius: var(--radius-lg, 16px);
+      padding: var(--space-6, 24px);
+      margin-bottom: var(--space-8, 32px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .diagram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4, 16px);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .diagram-title {
+      font-size: var(--font-size-xl, 20px);
+      font-weight: 700;
+      color: var(--color-text, #f8fafc);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .diagram-img-container {
+      width: 100%;
+      background: #0f172a;
+      border-radius: var(--radius-md, 12px);
+      padding: var(--space-4, 16px);
+      border: 1px solid #1e293b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+    }
+    .diagram-img-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="page-header">
+      <h1>💊 MedBox</h1>
+      <nav class="nav">
+        <a href="index.html">Dashboard</a>
+        <a href="medications.html">Medications</a>
+        <a href="history.html">History</a>
+        <a href="settings.html">Settings</a>
+        <a href="diagrams.html" class="active">Diagrams</a>
+      </nav>
+    </header>
+
+    <main>
+      <div style="margin-bottom: var(--space-6);">
+        <h2 class="section-header">📊 Architecture & System Diagrams</h2>
+        <p style="color: var(--color-text-muted);">High-resolution vector diagrams for hardware interconnects, firmware state machine, sequence flows, power topology, and mechanical concept.</p>
+      </div>
+
+      <!-- Diagram 1 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">🌐 1. High-Level System Architecture</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/1_system_architecture.svg" download="MedBox_System_Architecture.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/1_system_architecture.svg" alt="System Architecture">
+        </div>
+      </section>
+
+      <!-- Diagram 2 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">🧠 2. Microcontroller Interconnects (UART)</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/2_microcontroller_interconnects.svg" download="MedBox_Microcontroller_UART.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/2_microcontroller_interconnects.svg" alt="Microcontroller Interconnects">
+        </div>
+      </section>
+
+      <!-- Diagram 3 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">⚡ 3. Electrical Power Topology</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/3_electrical_power_topology.svg" download="MedBox_Power_Topology.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/3_electrical_power_topology.svg" alt="Power Topology">
+        </div>
+      </section>
+
+      <!-- Diagram 4 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">🔄 4. Firmware State Machine Flow</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/4_firmware_state_machine.svg" download="MedBox_State_Machine.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/4_firmware_state_machine.svg" alt="Firmware State Machine">
+        </div>
+      </section>
+
+      <!-- Diagram 5 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">🚀 5. End-to-End Operation Sequence</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/5_end_to_end_sequence.svg" download="MedBox_Sequence_Diagram.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/5_end_to_end_sequence.svg" alt="Sequence Diagram">
+        </div>
+      </section>
+
+      <!-- Diagram 6 -->
+      <section class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">⚙️ 6. Mechanical Metering Mechanism</div>
+          <a class="btn btn-primary btn-sm" href="img/diagrams/6_mechanical_dispensing.svg" download="MedBox_Mechanical_Dispensing.svg">⬇️ Download SVG</a>
+        </div>
+        <div class="diagram-img-container">
+          <img src="img/diagrams/6_mechanical_dispensing.svg" alt="Mechanical Metering">
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>

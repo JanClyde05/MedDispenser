@@ -25,7 +25,7 @@ enum SystemState {
               ┌──────────┐                             │
               │   IDLE   │◄────────────────────────────┤
               └────┬─────┘                             │
-                   │ schedule pending                   │
+                   │ schedule pending                  │
                    ▼                                   │
               ┌──────────┐                             │
               │ REMINDER │ buzzer + ntfy               │
