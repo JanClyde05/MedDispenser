@@ -47,15 +47,15 @@ async function handleSaveMedication(e) {
   e.preventDefault();
 
   const data = {
-    name:         document.getElementById('med-name').value.trim(),
-    moduleId:     parseInt(document.getElementById('med-module').value),
+    name: document.getElementById('med-name').value.trim(),
+    moduleId: parseInt(document.getElementById('med-module').value),
     pillsPerDose: parseInt(document.getElementById('med-dose').value),
-    time:         document.getElementById('med-time').value,
-    daysOfWeek:   getDaysBitmask(),
-    days:         getDaysArray(),
-    startDate:    document.getElementById('med-start').value || null,
-    endDate:      document.getElementById('med-end').value || null,
-    enabled:      true,
+    time: document.getElementById('med-time').value,
+    daysOfWeek: getDaysBitmask(),
+    days: getDaysArray(),
+    startDate: document.getElementById('med-start').value || null,
+    endDate: document.getElementById('med-end').value || null,
+    enabled: true,
   };
 
   if (!data.name) {
@@ -106,7 +106,7 @@ function renderMedicationCard(med) {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const activeDays = dayNames.filter((_, i) => (med.daysOfWeek >> i) & 1).join(', ');
   const statusClass = med.enabled ? 'success' : 'error';
-  const statusText  = med.enabled ? 'Active' : 'Disabled';
+  const statusText = med.enabled ? 'Active' : 'Disabled';
 
   return `
     <div class="med-card">
@@ -121,6 +121,7 @@ function renderMedicationCard(med) {
         ${med.endDate ? `<p>🔴 Until: ${med.endDate}</p>` : ''}
       </div>
       <div class="med-card-actions">
+        <button class="btn btn-primary btn-sm" onclick="testNotification('${med.name}', ${med.pillsPerDose}, '${med.time}', ${med.moduleId})">🔔 Test Alert</button>
         <button class="btn btn-ghost btn-sm" onclick="toggleMedication('${med.id}', ${!med.enabled})">
           ${med.enabled ? '⏸️ Disable' : '▶️ Enable'}
         </button>
@@ -128,6 +129,23 @@ function renderMedicationCard(med) {
       </div>
     </div>
   `;
+}
+
+// ── Test Notification ──────────────────────────────────────────────────
+async function testNotification(name, dose, time, moduleId) {
+  try {
+    showToast('Sending test notification to phone...', 'info');
+    await Api.sendNotification({
+      medicineName: name,
+      dose: dose || 1,
+      time: time || 'now',
+      moduleId: moduleId || 1,
+      type: 'reminder'
+    });
+    showToast('Notification sent to phone!', 'success');
+  } catch (err) {
+    showToast('Failed to send notification', 'error');
+  }
 }
 
 // ── Actions ───────────────────────────────────────────────────────────
