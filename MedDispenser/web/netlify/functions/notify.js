@@ -28,11 +28,17 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { medicineName, dose, time, moduleId, type } = JSON.parse(event.body);
+    const { medicineName, dose, time, moduleId, type, topic } = JSON.parse(event.body);
 
     const ntfyServer = process.env.NTFY_SERVER || 'https://ntfy.sh';
-    const ntfyTopic  = process.env.NTFY_TOPIC || 'med-box-notification';
+    let ntfyTopic    = topic || process.env.NTFY_TOPIC || 'med-box-notification';
     const ntfyToken  = process.env.NTFY_TOKEN;
+
+    // Clean topic if full URL was provided (e.g. https://ntfy.sh/med-box-notification -> med-box-notification)
+    if (ntfyTopic.includes('/')) {
+      const parts = ntfyTopic.trim().replace(/\/+$/, '').split('/');
+      ntfyTopic = parts[parts.length - 1];
+    }
 
 
     // Build notification

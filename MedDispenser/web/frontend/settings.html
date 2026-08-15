@@ -48,8 +48,8 @@
             <span class="card-title">🔔 Notifications</span>
           </div>
           <div class="form-group">
-            <label class="form-label" for="ntfy-topic">ntfy Topic</label>
-            <input class="form-input" type="text" id="ntfy-topic" placeholder="medbox-user123">
+            <label class="form-label" for="ntfy-topic">ntfy Topic or URL</label>
+            <input class="form-input" type="text" id="ntfy-topic" placeholder="e.g. med-box-notification or https://ntfy.sh/med-box-notification" value="med-box-notification">
           </div>
           <div class="form-group">
             <label class="form-label" for="reminder-interval">Reminder Interval (minutes)</label>
@@ -59,7 +59,10 @@
             <label class="form-label" for="max-reminders">Max Reminders</label>
             <input class="form-input" type="number" id="max-reminders" value="12" min="1" max="50">
           </div>
-          <button class="btn btn-primary" id="btn-save-notify">💾 Save Notification Settings</button>
+          <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-save-notify">💾 Save Notification Settings</button>
+            <button class="btn btn-secondary" id="btn-test-notify">🔔 Send Test Alert</button>
+          </div>
         </section>
 
         <!-- Module Status -->
@@ -104,5 +107,6 @@
 
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/settings.js"></script>
 </body>
 </html>

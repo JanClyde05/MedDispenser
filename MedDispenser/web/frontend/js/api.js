@@ -85,4 +85,20 @@ const Api = {
     if (!res.ok) throw new Error(`POST device failed: ${res.status}`);
     return res.json();
   },
+
+  // ── Notifications ───────────────────────────────────────────────────
+  async sendNotification(data) {
+    const savedTopic = localStorage.getItem('medbox_ntfy_topic');
+    const payload = { ...data };
+    if (savedTopic && !payload.topic) {
+      payload.topic = savedTopic;
+    }
+    const res = await fetch(`${API_BASE}/notify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`POST notify failed: ${res.status}`);
+    return res.json();
+  },
 };
