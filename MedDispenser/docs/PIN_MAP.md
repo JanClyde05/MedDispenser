@@ -1,6 +1,8 @@
 # MedBox — Complete Pin Mapping & Interconnect Specification
 
-> 📌 **STATUS: FINALIZED** — Verified against ESP32-S3 SuperMini and ESP32-C3 SuperMini hardware pinouts, avoiding all boot-strapping and reserved pins.
+> **Last Updated:** 2026-08-22 — Pin assignments verified against actual hardware wiring. S3 UART pins corrected to GPIO 1 (TX) / GPIO 2 (RX).
+
+> 📌 **STATUS: FINALIZED & VERIFIED** — Tested against ESP32-S3 SuperMini and ESP32-C3 SuperMini hardware. UART communication confirmed working (PING/PONG/DISPENSE/OPEN/CLOSE).
 
 ---
 
@@ -20,10 +22,10 @@
                    │                           │
   ┌────────────────┴──────────────┐            │
   │ ESP32-S3 SuperMini (Brain)    │            │
-  │  • GPIO 17 (TX1) ─────────────┼──────────┐ │
-  │  • GPIO 18 (RX1) ◄────────────┼────────┐ │ │
+  │  • GPIO 1  (TX)  ─────────────┼──────────┐ │
+  │  • GPIO 2  (RX)  ◄────────────┼────────┐ │ │
   │  • GPIO 5  ◄── IR Proximity   │        │ │ │
-  │  • GPIO 6  ──► Piezo Buzzer   │        │ │ │
+  │  • GPIO 6  ──► Active Buzzer  │        │ │ │
   └───────────────────────────────┘        │ │ │
                                            │ │ │
   ┌───────────────────────────────┐        │ │ │
@@ -53,10 +55,10 @@
 | **5V / VBUS** | — | 5V Main Power Input | USB-C 5V Power Rail | Input | Powers board internal 3.3V LDO regulator |
 | **3V3** | — | 3.3V Regulated Output | IR Proximity Sensor VCC | Output | Max 300mA total board draw |
 | **GND** | — | System Ground | Common GND Bus | Power Ref | **MUST share common ground** with C3 & Servos |
-| **TX1** | `GPIO 17` | UART1 Transmit | ESP32-C3 `GPIO 20` (RX0) | Output (3.3V) | Transmits binary/ASCII move commands |
-| **RX1** | `GPIO 18` | UART1 Receive | ESP32-C3 `GPIO 21` (TX0) | Input (3.3V) | Receives status/ack responses from C3 |
-| **GPIO 5** | `GPIO 5` | Proximity / IR Input | IR Obstacle / Proximity Sensor `OUT` | Input (Digital) | Active LOW/HIGH (Configurable in `config.h`) |
-| **GPIO 6** | `GPIO 6` | Buzzer Tone Drive | Piezo Buzzer `+` (or NPN Base) | Output (PWM) | LEDC Channel 0, ~2700 Hz resonant frequency |
+| **GPIO 1** | `GPIO 1` | UART Transmit (TX) | ESP32-C3 `GPIO 20` (RX0) | Output (3.3V) | Transmits ASCII move commands to C3 |
+| **GPIO 2** | `GPIO 2` | UART Receive (RX) | ESP32-C3 `GPIO 21` (TX0) | Input (3.3V) | Receives status/ack responses from C3 |
+| **GPIO 5** | `GPIO 5` | Proximity / IR Input | IR Obstacle / Proximity Sensor `OUT` | Input (Digital) | Active LOW (configurable via `PROXIMITY_ACTIVE` in `config.h`) |
+| **GPIO 6** | `GPIO 6` | Active Buzzer Drive | Active Buzzer `+` terminal | Output (Digital) | Uses `digitalWrite(HIGH/LOW)` — NOT PWM `ledcWrite` |
 
 ### ⚠️ ESP32-S3 Strapping Pins (DO NOT USE)
 | GPIO | Strapping Function | Risk if Connected |
@@ -73,8 +75,8 @@
 |:--------------|:----:|:-------------------------|:---------------------------|:----------:|:-----------|
 | **5V / VBUS** | — | 5V Logic Power | USB-C 5V Power Rail | Red | Power Input |
 | **GND** | — | System Ground | Common GND Bus | Black | Common Ground |
-| **RX0** | `GPIO 20` | UART0 Receive | ESP32-S3 `GPIO 17` (TX1) | Yellow/Blue | Serial RX (115200 Baud) |
-| **TX0** | `GPIO 21` | UART0 Transmit | ESP32-S3 `GPIO 18` (RX1) | Green/White | Serial TX (115200 Baud) |
+| **RX0** | `GPIO 20` | UART0 Receive | ESP32-S3 `GPIO 1` (TX) | Yellow/Blue | Serial RX (115200 Baud) |
+| **TX0** | `GPIO 21` | UART0 Transmit | ESP32-S3 `GPIO 2` (RX) | Green/White | Serial TX (115200 Baud) |
 | **GPIO 0** | `GPIO 0` | Module 1 Dispenser Servo | M1 Dispenser Servo PWM Signal | Orange/Yellow | PWM (50 Hz, 500-2400 µs) |
 | **GPIO 1** | `GPIO 1` | Module 1 Hatch Servo | M1 Hatch Servo PWM Signal | Orange/Yellow | PWM (50 Hz, 500-2400 µs) |
 | **GPIO 3** | `GPIO 3` | Module 2 Dispenser Servo | M2 Dispenser Servo PWM Signal | Orange/Yellow | PWM (50 Hz, 500-2400 µs) |
@@ -129,7 +131,7 @@
 | **IR Proximity Sensor** | VCC | ESP32-S3 `3V3` Pin | Or 5V depending on module model (e.g. FC-51) |
 | | GND | Common GND Bus | Shared Ground |
 | | OUT / DO | ESP32-S3 `GPIO 5` | Digital Input |
-| **Piezo Buzzer** | Positive (`+`) | ESP32-S3 `GPIO 6` | Direct pin drive (or via 220Ω resistor) |
+| **Active Buzzer** | Positive (`+`) | ESP32-S3 `GPIO 6` | Direct `digitalWrite(HIGH/LOW)` — NOT PWM |
 | | Negative (`-`) | Common GND Bus | Shared Ground |
 
 ---
@@ -155,4 +157,3 @@ Expansion Bus Connector (Female Header on Main Unit / Male Plug on Expansion Mod
 1. **Dedicated Servo Rail:** Never feed motor supply power through the 3.3V or 5V output pin of either ESP32 board. Wire servo VCC directly to the main 5V power bus.
 2. **Decoupling Capacitor:** Solder a **470 µF / 16V Low-ESR Electrolytic Capacitor** across the 5V Servo Rail and GND near the servo connectors to absorb current surges during motor start.
 3. **Common Ground:** All GND pins from the power supply, ESP32-S3, ESP32-C3, proximity sensor, buzzer, and all 6 servos **MUST BE CONNECTED TOGETHER** to establish a zero-volt logic reference.
-

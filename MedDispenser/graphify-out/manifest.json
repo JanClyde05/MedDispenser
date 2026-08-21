@@ -1,0 +1,488 @@
+{
+  "docs/generate_svgs.py": {
+    "mtime": 1787322708.6538534,
+    "seen": 1787345182.899421,
+    "ast_hash": "ee56032772fdad2d425ab93759d00448",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/config.h": {
+    "mtime": 1787340185.1479328,
+    "seen": 1787345182.8994365,
+    "ast_hash": "991ef8e0fc07326bb34ff211a6c31cc7",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/protocol.h": {
+    "mtime": 1786642399.8921692,
+    "seen": 1787345182.8994434,
+    "ast_hash": "9b70b4642e9d6d723d81e4f7a027b14a",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/servo_controller.cpp": {
+    "mtime": 1787341715.9753008,
+    "seen": 1787345182.8994486,
+    "ast_hash": "7cec912188daf12a3de8aeab93e5e80d",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/servo_controller.h": {
+    "mtime": 1787338992.8860292,
+    "seen": 1787345182.8994548,
+    "ast_hash": "cbf7364082a48ea39c55a713ebc1b975",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/uart_handler.cpp": {
+    "mtime": 1787339060.8523645,
+    "seen": 1787345182.8994598,
+    "ast_hash": "cebf212dad55ff582fa515610ac50003",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/uart_handler.h": {
+    "mtime": 1786642663.322061,
+    "seen": 1787345182.8994656,
+    "ast_hash": "b0e0ec546f6124b1f3735da59c071a28",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/api_client.cpp": {
+    "mtime": 1787343139.9566169,
+    "seen": 1787345182.899471,
+    "ast_hash": "98b051449b82a915b0829e3b0525e2a5",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/api_client.h": {
+    "mtime": 1787333540.7871625,
+    "seen": 1787345182.8994763,
+    "ast_hash": "d442e757cd078f3b1b3773dd2a158773",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/buzzer.cpp": {
+    "mtime": 1787334323.9765904,
+    "seen": 1787345182.8994815,
+    "ast_hash": "7b4010e2c05568614b31243c05835403",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/buzzer.h": {
+    "mtime": 1787333540.8820395,
+    "seen": 1787345182.8994873,
+    "ast_hash": "e64350d50fc36801b65d6b90c474273d",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/config.h": {
+    "mtime": 1787337615.2568352,
+    "seen": 1787345182.8994935,
+    "ast_hash": "3171122854c657c961ba7174ffa46248",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/data/app.js": {
+    "mtime": 1786708295.7701848,
+    "seen": 1787345182.8994985,
+    "ast_hash": "494f1d9e6f26704ebaf781aa6fd7fe52",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/nvs_store.cpp": {
+    "mtime": 1787333540.995249,
+    "seen": 1787345182.899504,
+    "ast_hash": "9df6494b77bb789c44f63fa35025e250",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/nvs_store.h": {
+    "mtime": 1787333541.059111,
+    "seen": 1787345182.8995092,
+    "ast_hash": "86523ac7dc4e01f5b91f5a0fe18fae1b",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/protocol.h": {
+    "mtime": 1787333541.1121066,
+    "seen": 1787345182.8995147,
+    "ast_hash": "ca103a7a443d3d7394977ee345d4eb0a",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/proximity.cpp": {
+    "mtime": 1787333541.170207,
+    "seen": 1787345182.89952,
+    "ast_hash": "30ed483f189023472a124a0f753f3e5a",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/proximity.h": {
+    "mtime": 1787333541.223971,
+    "seen": 1787345182.8995254,
+    "ast_hash": "5c7510e4c0e9e10e7b2aff23593381ea",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/schedule_manager.cpp": {
+    "mtime": 1787333541.275493,
+    "seen": 1787345182.8995306,
+    "ast_hash": "e1b86c1437630ab2fae37a5831c5b2d9",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/schedule_manager.h": {
+    "mtime": 1787333541.3327236,
+    "seen": 1787345182.899536,
+    "ast_hash": "f9752c954954b53aa72d5e2e28750b30",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/state_machine.cpp": {
+    "mtime": 1787343941.194537,
+    "seen": 1787345182.899541,
+    "ast_hash": "b69e63e1845c8aac343179aabc8f68bf",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/state_machine.h": {
+    "mtime": 1787333541.4518223,
+    "seen": 1787345182.8995461,
+    "ast_hash": "cda00b81fabc710e39a841b903cc834b",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/time_manager.cpp": {
+    "mtime": 1787343132.0428493,
+    "seen": 1787345182.899553,
+    "ast_hash": "f2aabe86b0b4640c59bc0871df7b8c1c",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/time_manager.h": {
+    "mtime": 1787343128.0931473,
+    "seen": 1787345182.899558,
+    "ast_hash": "f49bd4ef638c387d1b12d6625b2848a4",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/uart_command.cpp": {
+    "mtime": 1787342282.1053412,
+    "seen": 1787345182.8995636,
+    "ast_hash": "c6ff855e37b3a7d4d74b2e60fa1c6c4b",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/uart_command.h": {
+    "mtime": 1787342278.0793192,
+    "seen": 1787345182.8995688,
+    "ast_hash": "b5b3665c225341c1cd1d092fc48e590c",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/wifi_manager.cpp": {
+    "mtime": 1787333541.733714,
+    "seen": 1787345182.8995748,
+    "ast_hash": "aca09f872647f5d882e52576cb8cb79b",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/wifi_manager.h": {
+    "mtime": 1787333541.8007355,
+    "seen": 1787345182.8995805,
+    "ast_hash": "69efa7bfbd1a80ebf3bf805e66bece57",
+    "semantic_hash": ""
+  },
+  "firmware/shared/protocol.h": {
+    "mtime": 1786642399.8921692,
+    "seen": 1787345182.8995855,
+    "ast_hash": "9b70b4642e9d6d723d81e4f7a027b14a",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/api.js": {
+    "mtime": 1787326130.6452353,
+    "seen": 1787345182.8995912,
+    "ast_hash": "b81c18da7d2f4e1682a8f412fa9724cb",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/app.js": {
+    "mtime": 1787343122.2945569,
+    "seen": 1787345182.8995972,
+    "ast_hash": "1a5d285325f38e293273963afe580b32",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/history.js": {
+    "mtime": 1786708295.794309,
+    "seen": 1787345182.8996046,
+    "ast_hash": "937bd6366d416789d40cf33a66c8c17a",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/medications.js": {
+    "mtime": 1787326175.1796153,
+    "seen": 1787345182.8996112,
+    "ast_hash": "f3e047052b5960d8d2a6cee331ba503b",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/schedule.js": {
+    "mtime": 1786642984.6331325,
+    "seen": 1787345182.899617,
+    "ast_hash": "79a47a942cc2621042582b9c0e08eb66",
+    "semantic_hash": ""
+  },
+  "web/frontend/js/settings.js": {
+    "mtime": 1787339053.204629,
+    "seen": 1787345182.8996227,
+    "ast_hash": "d6fd7feecb75193dd9ca7ba97797da43",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/devices.js": {
+    "mtime": 1786708295.794309,
+    "seen": 1787345182.8996277,
+    "ast_hash": "a9df7f99a1bf2693c46d6cb571770eb4",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/dispense-command.js": {
+    "mtime": 1787330719.794347,
+    "seen": 1787345182.899633,
+    "ast_hash": "d38e5e4e31d097934e440ed63af1d633",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/dispense-log.js": {
+    "mtime": 1786708295.794309,
+    "seen": 1787345182.8996382,
+    "ast_hash": "227c196b2644063ec881555fb791e7cc",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/medications.js": {
+    "mtime": 1786708295.8099365,
+    "seen": 1787345182.8996437,
+    "ast_hash": "f5649135f38c5438ada237fc4d20858a",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/notify.js": {
+    "mtime": 1787322708.6797338,
+    "seen": 1787345182.8996487,
+    "ast_hash": "e1e5ac5de70190cf07773380008bd6bb",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/schedules.js": {
+    "mtime": 1786708295.8110662,
+    "seen": 1787345182.8996544,
+    "ast_hash": "65e4b2e45b02b9a8c485b932a4f9f308",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/sync.js": {
+    "mtime": 1787326095.3596811,
+    "seen": 1787345182.8996599,
+    "ast_hash": "7dbc69d265db19ba707d77a001c2fac7",
+    "semantic_hash": ""
+  },
+  "web/package.json": {
+    "mtime": 1786708295.8363657,
+    "seen": 1787345182.8996649,
+    "ast_hash": "686f1f02759bcd492f0d5041ef97eab5",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1786643164.8774045,
+    "seen": 1787345182.899672,
+    "ast_hash": "ce6f9e36df8d6bf7c93fefd06d5fa5fc",
+    "semantic_hash": ""
+  },
+  "docs/ARCHITECTURE.md": {
+    "mtime": 1787344862.3937154,
+    "seen": 1787345182.8996775,
+    "ast_hash": "2ffe8fbd768bdbd020730ef8e6b2070e",
+    "semantic_hash": ""
+  },
+  "docs/DEVICE_OPERATION_GUIDE.md": {
+    "mtime": 1787344976.3467584,
+    "seen": 1787345182.8996825,
+    "ast_hash": "5f06e6f032d1b955b4096a3fabfaa577",
+    "semantic_hash": ""
+  },
+  "docs/LOCAL_TESTING.md": {
+    "mtime": 1787327214.4560997,
+    "seen": 1787345182.899688,
+    "ast_hash": "9fb723021a6830f86de211461f211ab1",
+    "semantic_hash": ""
+  },
+  "docs/PIN_MAP.md": {
+    "mtime": 1787344822.2342274,
+    "seen": 1787345182.8996933,
+    "ast_hash": "29fca54871b94fc8f3740b79f77144aa",
+    "semantic_hash": ""
+  },
+  "docs/POWER.md": {
+    "mtime": 1786643152.7969804,
+    "seen": 1787345182.8996987,
+    "ast_hash": "37d519b2ad5a110170f7adf867b140a2",
+    "semantic_hash": ""
+  },
+  "docs/STATE_MACHINE.md": {
+    "mtime": 1787344736.7962391,
+    "seen": 1787345182.8997037,
+    "ast_hash": "bb0cb71b77a604bdebb058b4656d0a6a",
+    "semantic_hash": ""
+  },
+  "docs/UART_PROTOCOL.md": {
+    "mtime": 1787344762.379971,
+    "seen": 1787345182.8997092,
+    "ast_hash": "b6634078a8446e92a3a540d488af33f3",
+    "semantic_hash": ""
+  },
+  "firmware/README.md": {
+    "mtime": 1786642736.5657785,
+    "seen": 1787345182.8997147,
+    "ast_hash": "6634947e2f246cb1f8dd877a028ee1d7",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_c3/README.md": {
+    "mtime": 1786642743.119496,
+    "seen": 1787345182.8997202,
+    "ast_hash": "ff19581ace2c39005fa7fd59f5d8a035",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/README.md": {
+    "mtime": 1787333540.6878612,
+    "seen": 1787345182.899726,
+    "ast_hash": "ce476f004d410b7d3329e73b3d6f005a",
+    "semantic_hash": ""
+  },
+  "firmware/medbox_s3/data/index.html": {
+    "mtime": 1786708295.7701848,
+    "seen": 1787345182.899731,
+    "ast_hash": "f142c73c7b768e478ebebf2d4fc0842b",
+    "semantic_hash": ""
+  },
+  "web/README.md": {
+    "mtime": 1786643069.9894469,
+    "seen": 1787345182.8997366,
+    "ast_hash": "2693be0aab035ee22bede42799e44ec4",
+    "semantic_hash": ""
+  },
+  "web/frontend/README.md": {
+    "mtime": 1786642991.7683742,
+    "seen": 1787345182.899742,
+    "ast_hash": "7c2e704bd757efe8a3e86212fde5e3a3",
+    "semantic_hash": ""
+  },
+  "web/frontend/diagrams.html": {
+    "mtime": 1787322708.6560378,
+    "seen": 1787345182.8997478,
+    "ast_hash": "58d226f691028e6a5e39abeb24807edb",
+    "semantic_hash": ""
+  },
+  "web/frontend/history.html": {
+    "mtime": 1787322708.6570358,
+    "seen": 1787345182.8997533,
+    "ast_hash": "a96303f713b18c732592051f4534f677",
+    "semantic_hash": ""
+  },
+  "web/frontend/index.html": {
+    "mtime": 1787322708.673113,
+    "seen": 1787345182.8997583,
+    "ast_hash": "daf61fd5d6c06b385eb7a85eaae7fd26",
+    "semantic_hash": ""
+  },
+  "web/frontend/medications.html": {
+    "mtime": 1787322708.6768186,
+    "seen": 1787345182.899764,
+    "ast_hash": "bdc46ace18cb21257cbb6c724c7b413d",
+    "semantic_hash": ""
+  },
+  "web/frontend/settings.html": {
+    "mtime": 1787339045.0608542,
+    "seen": 1787345182.8997695,
+    "ast_hash": "4e3fa5186a8e135ffd79ef8616352915",
+    "semantic_hash": ""
+  },
+  "web/netlify/functions/README.md": {
+    "mtime": 1786643067.9249837,
+    "seen": 1787345182.899775,
+    "ast_hash": "d56172befe7c01b551a9e23599cc04b5",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/1_system_architecture.jpg": {
+    "mtime": 1787322708.6002533,
+    "seen": 1787345182.8997805,
+    "ast_hash": "30fae5c9e8675b541fe45cebd67693f3",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/1_system_architecture.svg": {
+    "mtime": 1787322708.601674,
+    "seen": 1787345182.8997858,
+    "ast_hash": "93f40e31e3b1b357ea896ded035f18cd",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/2_microcontroller_interconnects.jpg": {
+    "mtime": 1787322708.6122074,
+    "seen": 1787345182.899791,
+    "ast_hash": "c8166bf6248b0a12bfb7c1e585b5ed4d",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/2_microcontroller_interconnects.svg": {
+    "mtime": 1787322708.613204,
+    "seen": 1787345182.8997965,
+    "ast_hash": "676452ac6cbc5527e6b7f1fa55f2e6be",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/3_electrical_power_topology.jpg": {
+    "mtime": 1787322708.6200197,
+    "seen": 1787345182.8998022,
+    "ast_hash": "b1c29d75785dfc74f264991776cb9a26",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/3_electrical_power_topology.svg": {
+    "mtime": 1787322708.6201873,
+    "seen": 1787345182.8998072,
+    "ast_hash": "554f10f47b67a0f3e6d043040c17bf1d",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/4_firmware_state_machine.jpg": {
+    "mtime": 1787322708.6270227,
+    "seen": 1787345182.8998132,
+    "ast_hash": "acf5014dd4c019a5f5e660d41d177498",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/4_firmware_state_machine.svg": {
+    "mtime": 1787322708.6346629,
+    "seen": 1787345182.8998182,
+    "ast_hash": "7d4e261419a76df7df29d5627a17a20b",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/5_end_to_end_sequence.jpg": {
+    "mtime": 1787322708.643307,
+    "seen": 1787345182.8998237,
+    "ast_hash": "db2135c75ea9a1b44e5ac2fb9f3e65a1",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/5_end_to_end_sequence.svg": {
+    "mtime": 1787322708.6443043,
+    "seen": 1787345182.899829,
+    "ast_hash": "31f34b923d824dc230e173c977de507e",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/6_mechanical_dispensing.jpg": {
+    "mtime": 1787322708.6508617,
+    "seen": 1787345182.8998344,
+    "ast_hash": "ee64d2c6b37a8160d1528405e3dedb61",
+    "semantic_hash": ""
+  },
+  "docs/diagrams/6_mechanical_dispensing.svg": {
+    "mtime": 1787322708.6528556,
+    "seen": 1787345182.89984,
+    "ast_hash": "e745ddfd110c8acc75192510aad6d457",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/1_system_architecture.svg": {
+    "mtime": 1787322708.6678545,
+    "seen": 1787345182.8998451,
+    "ast_hash": "93f40e31e3b1b357ea896ded035f18cd",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/2_microcontroller_interconnects.svg": {
+    "mtime": 1787322708.668127,
+    "seen": 1787345182.899851,
+    "ast_hash": "676452ac6cbc5527e6b7f1fa55f2e6be",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/3_electrical_power_topology.svg": {
+    "mtime": 1787322708.6691246,
+    "seen": 1787345182.8998563,
+    "ast_hash": "554f10f47b67a0f3e6d043040c17bf1d",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/4_firmware_state_machine.svg": {
+    "mtime": 1787322708.6701221,
+    "seen": 1787345182.8998623,
+    "ast_hash": "7d4e261419a76df7df29d5627a17a20b",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/5_end_to_end_sequence.svg": {
+    "mtime": 1787322708.6721158,
+    "seen": 1787345182.8998694,
+    "ast_hash": "31f34b923d824dc230e173c977de507e",
+    "semantic_hash": ""
+  },
+  "web/frontend/img/diagrams/6_mechanical_dispensing.svg": {
+    "mtime": 1787322708.673113,
+    "seen": 1787345182.8998764,
+    "ast_hash": "e745ddfd110c8acc75192510aad6d457",
+    "semantic_hash": ""
+  }
+}

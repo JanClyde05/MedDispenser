@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+.netlify/
+
+# Environment
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Graphify cache (knowledge graph)
+graphify-out/cache/
