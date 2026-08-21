@@ -9,7 +9,11 @@
 #include "config.h"
 #include "wifi_manager.h"
 #include "schedule_manager.h"
+#include "state_machine.h"
 #include "time_manager.h"
+#include "proximity.h"
+#include "buzzer.h"
+#include "uart_command.h"
 #include "protocol.h"
 
 #include <HTTPClient.h>
@@ -18,7 +22,17 @@
 
 static unsigned long _lastSyncMs = 0;
 static unsigned long _lastHeartbeatMs = 0;
+static unsigned long _lastCmdPollMs = 0;
 static WiFiClientSecure _secureClient;
+
+// ── IR Test Mode State ───────────────────────────────────────────────
+static bool    _irTestActive  = false;
+static uint8_t _irTestModule  = 1;
+static char    _irTestAction[8] = "";  // "buzz", "servo", "both"
+
+// Forward declaration
+static void _processTestCommand(JsonObject& cmd);
+static void _apiClientPollCommands();
 
 void apiClientInit() {
   _secureClient.setInsecure();  // Skip cert validation (Let's Encrypt rotates)
@@ -30,16 +44,40 @@ void apiClientUpdate() {
 
   unsigned long now = millis();
 
-  // Periodic schedule sync
+  // Periodic schedule sync (every 5 min)
   if ((now - _lastSyncMs) >= API_SYNC_INTERVAL_MS) {
     _lastSyncMs = now;
     apiClientSyncSchedules();
+  }
+
+  // Fast command poll for hardware test commands (every 10 sec)
+  if ((now - _lastCmdPollMs) >= API_COMMAND_POLL_MS) {
+    _lastCmdPollMs = now;
+    _apiClientPollCommands();
   }
 
   // Periodic heartbeat (every 2 minutes)
   if ((now - _lastHeartbeatMs) >= 120000) {
     _lastHeartbeatMs = now;
     apiClientHeartbeat();
+  }
+
+  // ── IR Test Mode — check proximity sensor ──────────────────────────
+  if (_irTestActive && proximityIsDetected()) {
+    Serial.print(F("[IR Test] Proximity detected! Action: "));
+    Serial.println(_irTestAction);
+
+    if (strcmp(_irTestAction, "buzz") == 0) {
+      buzzerPatternStart(3, 300, 200);
+    } else if (strcmp(_irTestAction, "servo") == 0) {
+      uartSendCommand(CMD_OPEN, _irTestModule);
+    } else if (strcmp(_irTestAction, "both") == 0) {
+      buzzerPatternStart(3, 300, 200);
+      uartSendCommand(CMD_OPEN, _irTestModule);
+    }
+
+    _irTestActive = false;  // One-shot: disarm after first detection
+    Serial.println(F("[IR Test] Disarmed"));
   }
 }
 
@@ -124,6 +162,45 @@ bool apiClientSyncSchedules() {
   Serial.print(F("API sync: fetched "));
   Serial.print(count);
   Serial.println(F(" schedules"));
+
+  // ── Process pending dispense commands from web frontend ────────────
+  JsonArray pendingCmds = doc["pendingCommands"].as<JsonArray>();
+  if (!pendingCmds.isNull() && pendingCmds.size() > 0) {
+    Serial.print(F("API sync: "));
+    Serial.print(pendingCmds.size());
+    Serial.println(F(" pending dispense command(s)"));
+
+    for (JsonObject cmd : pendingCmds) {
+      MedSchedule triggerSched;
+      memset(&triggerSched, 0, sizeof(triggerSched));
+
+      triggerSched.active      = true;
+      triggerSched.moduleId    = cmd["moduleId"] | 1;
+      triggerSched.pillsPerDose = cmd["dose"] | 1;
+      triggerSched.enabled     = true;
+
+      const char* medName = cmd["medicineName"] | "Test";
+      strncpy(triggerSched.medicineName, medName,
+              sizeof(triggerSched.medicineName) - 1);
+      triggerSched.medicineName[sizeof(triggerSched.medicineName) - 1] = '\0';
+
+      // Parse time if provided ("HH:MM" format)
+      const char* timeStr = cmd["time"] | "00:00";
+      if (strlen(timeStr) >= 5 && timeStr[2] == ':') {
+        triggerSched.hour   = (timeStr[0] - '0') * 10 + (timeStr[1] - '0');
+        triggerSched.minute = (timeStr[3] - '0') * 10 + (timeStr[4] - '0');
+      }
+
+      // Trigger the state machine — this starts buzzer → IR → servo flow
+      if (stateMachineTriggerDispense(triggerSched)) {
+        Serial.print(F("Web command accepted: "));
+        Serial.println(triggerSched.medicineName);
+        break;  // Only process one command at a time (state machine is single-threaded)
+      } else {
+        Serial.println(F("Web command rejected — state machine busy"));
+      }
+    }
+  }
 
   return true;
 }
@@ -226,4 +303,122 @@ void apiClientHeartbeat() {
     Serial.println(httpCode);
   }
   http.end();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// Hardware Test Command Poll — 10-second fast poll
+// ══════════════════════════════════════════════════════════════════════
+
+static void _apiClientPollCommands() {
+  if (!wifiIsConnected()) return;
+
+  HTTPClient http;
+  String url = String(API_BASE_URL) + API_COMMAND_ENDPOINT;
+
+  http.begin(_secureClient, url);
+  http.setTimeout(API_HTTP_TIMEOUT_MS);
+
+  int httpCode = http.GET();
+  if (httpCode != 200) {
+    http.end();
+    return;  // Silent fail — this runs every 10s, no need to spam
+  }
+
+  String payload = http.getString();
+  http.end();
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, payload);
+  if (err) return;
+
+  JsonArray cmds = doc.as<JsonArray>();
+  if (cmds.isNull() || cmds.size() == 0) return;
+
+  Serial.print(F("[CmdPoll] "));
+  Serial.print(cmds.size());
+  Serial.println(F(" command(s) found"));
+
+  // Process each command
+  bool hasTestCommands = false;
+  for (JsonObject cmd : cmds) {
+    const char* type = cmd["type"] | "";
+    if (strcmp(type, "test_hardware") == 0) {
+      _processTestCommand(cmd);
+      hasTestCommands = true;
+    }
+    // Non-test commands are handled by the sync flow (apiClientSyncSchedules)
+  }
+
+  // Clear the command queue after processing
+  if (hasTestCommands) {
+    HTTPClient httpDel;
+    httpDel.begin(_secureClient, url);
+    httpDel.setTimeout(API_HTTP_TIMEOUT_MS);
+    httpDel.addHeader("Content-Type", "application/json");
+    httpDel.sendRequest("DELETE", "{\"clearAll\":true}");
+    httpDel.end();
+    Serial.println(F("[CmdPoll] Queue cleared"));
+  }
+}
+
+static void _processTestCommand(JsonObject& cmd) {
+  const char* command  = cmd["command"] | "";
+  int         moduleId = cmd["moduleId"] | 1;
+
+  Serial.print(F("[HW Test] Command: "));
+  Serial.print(command);
+  Serial.print(F(" Module: "));
+  Serial.println(moduleId);
+
+  // ── Buzzer ─────────────────────────────────────────────────────────
+  if (strcmp(command, "BUZZ") == 0) {
+    Serial.println(F("[HW Test] Buzzer ON"));
+    buzzerPatternStart(3, 500, 300);  // 3 beeps, 500ms on, 300ms off
+
+  // ── UART Ping ──────────────────────────────────────────────────────
+  } else if (strcmp(command, "PING") == 0) {
+    Serial.println(F("[HW Test] Pinging C3..."));
+    uartSendCommand(CMD_PING, 0);
+
+  // ── Servo: Open Hatch ──────────────────────────────────────────────
+  } else if (strcmp(command, "OPEN") == 0) {
+    Serial.print(F("[HW Test] Opening hatch M"));
+    Serial.println(moduleId);
+    uartSendCommand(CMD_OPEN, moduleId);
+
+  // ── Servo: Close Hatch ─────────────────────────────────────────────
+  } else if (strcmp(command, "CLOSE") == 0) {
+    Serial.print(F("[HW Test] Closing hatch M"));
+    Serial.println(moduleId);
+    uartSendCommand(CMD_CLOSE, moduleId);
+
+  // ── Servo: Dispense ────────────────────────────────────────────────
+  } else if (strcmp(command, "DISPENSE") == 0) {
+    Serial.print(F("[HW Test] Dispensing M"));
+    Serial.println(moduleId);
+    uartSendCommand(CMD_DISPENSE, moduleId);
+
+  // ── Servo: Home ────────────────────────────────────────────────────
+  } else if (strcmp(command, "HOME") == 0) {
+    Serial.print(F("[HW Test] Homing M"));
+    Serial.println(moduleId);
+    uartSendCommand(CMD_HOME, moduleId);
+
+  // ── IR Sensor Test ─────────────────────────────────────────────────
+  } else if (strcmp(command, "IR_TEST") == 0) {
+    const char* irAction = cmd["irAction"] | "buzz";
+    _irTestModule = moduleId;
+    strncpy(_irTestAction, irAction, sizeof(_irTestAction) - 1);
+    _irTestAction[sizeof(_irTestAction) - 1] = '\0';
+    _irTestActive = true;
+
+    Serial.print(F("[HW Test] IR armed → "));
+    Serial.print(_irTestAction);
+    Serial.print(F(" M"));
+    Serial.println(_irTestModule);
+
+  } else {
+    Serial.print(F("[HW Test] Unknown command: "));
+    Serial.println(command);
+  }
 }

@@ -61,12 +61,27 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // Fetch and clear pending dispense commands
+    const cmdStore = getStore('dispense-commands');
+    let pendingCommands = [];
+    try {
+      pendingCommands = await cmdStore.get('_pending', { type: 'json' }) || [];
+      if (pendingCommands.length > 0) {
+        // Clear after fetching — commands are delivered once
+        await cmdStore.set('_pending', JSON.stringify([]));
+      }
+    } catch (cmdErr) {
+      // Non-fatal — commands are optional
+      console.warn('Failed to fetch pending commands:', cmdErr.message);
+    }
+
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         serverTime: Math.floor(Date.now() / 1000),
         schedules,
+        pendingCommands,
       }),
     };
 

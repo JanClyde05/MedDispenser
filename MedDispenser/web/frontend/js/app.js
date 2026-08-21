@@ -223,13 +223,117 @@ function renderScheduleCard(schedule) {
 }
 
 
+// ── Automatic Schedule Checker ────────────────────────────────────────
+// Runs on the dashboard page to detect when a medication time is reached
+// and automatically fire notifications + hardware dispense commands.
+
+const _triggeredSchedules = new Set();  // "medId_HH:MM_YYYY-MM-DD" keys
+let _scheduleCheckInterval = null;
+
+/**
+ * Check all today's schedules against the current time.
+ * If a match is found and hasn't been triggered yet, fire notification + dispense.
+ */
+async function checkSchedulesNow() {
+  try {
+    const schedules = await Api.getTodaySchedules();
+    if (!schedules || schedules.length === 0) return;
+
+    const now = new Date();
+    const currentHH = String(now.getHours()).padStart(2, '0');
+    const currentMM = String(now.getMinutes()).padStart(2, '0');
+    const currentTime = `${currentHH}:${currentMM}`;
+    const todayDate = now.toISOString().split('T')[0];  // YYYY-MM-DD
+
+    for (const sched of schedules) {
+      if (!sched.time) continue;
+
+      // Normalize schedule time to HH:MM
+      const schedTime = sched.time.substring(0, 5);  // "07:00" from "07:00" or "07:00:00"
+
+      if (schedTime !== currentTime) continue;
+
+      // Build unique key to avoid re-triggering within the same minute
+      const key = `${sched.medicationId || sched.medicineName}_${schedTime}_${todayDate}`;
+      if (_triggeredSchedules.has(key)) continue;
+
+      // Mark as triggered
+      _triggeredSchedules.add(key);
+
+      console.log(`[Schedule Checker] Time match: ${sched.medicineName} at ${schedTime}`);
+
+      // Show prominent toast
+      showToast(
+        `⏰ Time for ${sched.medicineName}! ${sched.pillsPerDose || 1} tablet(s) — Module ${sched.moduleId || 1}`,
+        'warning'
+      );
+
+      // Send ntfy notification (same as test button)
+      try {
+        await Api.sendNotification({
+          medicineName: sched.medicineName,
+          dose: sched.pillsPerDose || 1,
+          time: schedTime,
+          moduleId: sched.moduleId || 1,
+          type: 'reminder',
+        });
+        console.log(`[Schedule Checker] Notification sent for ${sched.medicineName}`);
+      } catch (notifyErr) {
+        console.warn('[Schedule Checker] Notification failed:', notifyErr.message);
+      }
+
+      // Send dispense command to ESP32 (buzzer + servo + IR flow)
+      try {
+        await Api.sendDispenseCommand({
+          moduleId: sched.moduleId || 1,
+          medicineName: sched.medicineName,
+          dose: sched.pillsPerDose || 1,
+          time: schedTime,
+          type: 'scheduled',
+        });
+        console.log(`[Schedule Checker] Dispense command queued for ${sched.medicineName}`);
+      } catch (cmdErr) {
+        console.warn('[Schedule Checker] Dispense command failed:', cmdErr.message);
+      }
+    }
+
+    // Cleanup old trigger keys (from previous days)
+    for (const key of _triggeredSchedules) {
+      if (!key.endsWith(todayDate)) {
+        _triggeredSchedules.delete(key);
+      }
+    }
+
+  } catch (err) {
+    console.warn('[Schedule Checker] Error:', err.message);
+  }
+}
+
+/**
+ * Start the schedule checker interval (every 30 seconds).
+ */
+function startScheduleChecker() {
+  if (_scheduleCheckInterval) return;  // Already running
+
+  // Run immediately on start
+  checkSchedulesNow();
+
+  // Then check every 30 seconds
+  _scheduleCheckInterval = setInterval(checkSchedulesNow, 30000);
+  console.log('[Schedule Checker] Started (30s interval)');
+}
+
+
 // ── Init ──────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Only run dashboard logic on the dashboard page
   if (document.getElementById('device-hub')) {
     loadDashboard();
 
-    // Auto-refresh every 60 seconds
+    // Start the automatic schedule checker
+    startScheduleChecker();
+
+    // Auto-refresh device status every 60 seconds
     setInterval(() => {
       loadDevices();
       loadTodaySchedules();

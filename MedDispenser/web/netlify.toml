@@ -40,6 +40,11 @@
   to = "/.netlify/functions/devices"
   status = 200
 
+[[redirects]]
+  from = "/api/dispense-command"
+  to = "/.netlify/functions/dispense-command"
+  status = 200
+
 # SPA fallback (if needed later)
 # [[redirects]]
 #   from = "/*"

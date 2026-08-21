@@ -206,3 +206,19 @@ const char* stateMachineGetStateName() {
 MedSchedule stateMachineGetActiveSchedule() {
   return _activeSchedule;
 }
+
+bool stateMachineTriggerDispense(const MedSchedule& schedule) {
+  if (_state != STATE_IDLE) {
+    Serial.println(F("TriggerDispense: rejected — state machine busy"));
+    return false;
+  }
+
+  _activeSchedule = schedule;
+  Serial.print(F("TriggerDispense: forcing dispense for "));
+  Serial.print(_activeSchedule.medicineName);
+  Serial.print(F(" Module "));
+  Serial.println(_activeSchedule.moduleId);
+
+  _enterState(STATE_REMINDER);
+  return true;
+}

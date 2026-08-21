@@ -84,3 +84,80 @@ async function handleTestNotification(e) {
     showToast('Failed to send test notification', 'error');
   }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// Hardware Test Panel — Direct hardware commands to ESP32
+// ══════════════════════════════════════════════════════════════════════
+
+const HW_COMMAND_LABELS = {
+  BUZZ:     '🔊 Buzzer',
+  PING:     '📡 Ping C3',
+  OPEN:     '🔓 Open Hatch',
+  CLOSE:    '🔒 Close Hatch',
+  DISPENSE: '⚙️ Dispense',
+  HOME:     '🏠 Home',
+};
+
+/**
+ * Send a direct hardware test command to the ESP32.
+ * @param {string} command - BUZZ, PING, OPEN, CLOSE, DISPENSE, HOME
+ * @param {number} [moduleId=0] - Module ID (1-3), 0 for non-module commands
+ */
+async function testHW(command, moduleId = 0) {
+  const label = HW_COMMAND_LABELS[command] || command;
+  const moduleLabel = moduleId > 0 ? ` (Module ${moduleId})` : '';
+
+  try {
+    showToast(`Sending ${label}${moduleLabel}...`, 'info');
+
+    await Api.sendDispenseCommand({
+      moduleId: moduleId || 1,
+      medicineName: `HW_TEST_${command}`,
+      dose: 1,
+      time: 'now',
+      type: 'test_hardware',
+      command: command,
+    });
+
+    showToast(`✅ ${label}${moduleLabel} command queued!`, 'success');
+  } catch (err) {
+    console.error(`Hardware test (${command}) failed:`, err);
+    showToast(`Failed to send ${label} command`, 'error');
+  }
+}
+
+/**
+ * Send an IR sensor test command — arms the IR sensor to trigger an action on next detection.
+ * @param {string} action - 'buzz', 'servo', or 'both'
+ */
+async function testIR(action) {
+  const moduleId = parseInt(document.getElementById('ir-test-module')?.value || '1');
+
+  const actionLabels = {
+    buzz:  '🔊 Buzzer Only',
+    servo: `⚙️ Open Hatch M${moduleId}`,
+    both:  `🔊+⚙️ Buzzer + Hatch M${moduleId}`,
+  };
+
+  const label = actionLabels[action] || action;
+
+  try {
+    showToast(`Arming IR sensor → ${label}...`, 'info');
+
+    await Api.sendDispenseCommand({
+      moduleId: moduleId,
+      medicineName: `IR_TEST_${action.toUpperCase()}`,
+      dose: 1,
+      time: 'now',
+      type: 'test_hardware',
+      command: 'IR_TEST',
+      irAction: action,
+    });
+
+    showToast(`✅ IR sensor armed! Wave your hand to trigger ${label}`, 'success');
+  } catch (err) {
+    console.error(`IR test (${action}) failed:`, err);
+    showToast('Failed to arm IR sensor test', 'error');
+  }
+}

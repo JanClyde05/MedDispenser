@@ -101,4 +101,15 @@ const Api = {
     if (!res.ok) throw new Error(`POST notify failed: ${res.status}`);
     return res.json();
   },
+
+  // ── Dispense Commands ─────────────────────────────────────────────
+  async sendDispenseCommand(data) {
+    const res = await fetch(`${API_BASE}/dispense-command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`POST dispense-command failed: ${res.status}`);
+    return res.json();
+  },
 };

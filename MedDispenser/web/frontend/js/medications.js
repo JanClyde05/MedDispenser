@@ -131,20 +131,49 @@ function renderMedicationCard(med) {
   `;
 }
 
-// ── Test Notification ──────────────────────────────────────────────────
+// ── Test Notification + Full Dispense Flow ────────────────────────────
 async function testNotification(name, dose, time, moduleId) {
   try {
-    showToast('Sending test notification to phone...', 'info');
-    await Api.sendNotification({
+    showToast(`Sending test alert + dispense command for ${name}...`, 'info');
+
+    // 1. Send ntfy notification to phone
+    const notifyPromise = Api.sendNotification({
       medicineName: name,
       dose: dose || 1,
       time: time || 'now',
       moduleId: moduleId || 1,
       type: 'reminder'
+    }).catch(err => {
+      console.warn('Test notification failed:', err.message);
+      return null;
     });
-    showToast('Notification sent to phone!', 'success');
+
+    // 2. Queue dispense command for ESP32 hardware (buzzer + servo + IR)
+    const dispensePromise = Api.sendDispenseCommand({
+      moduleId: moduleId || 1,
+      medicineName: name,
+      dose: dose || 1,
+      time: time || 'now',
+      type: 'test'
+    }).catch(err => {
+      console.warn('Test dispense command failed:', err.message);
+      return null;
+    });
+
+    // Wait for both to complete
+    const [notifyResult, dispenseResult] = await Promise.all([notifyPromise, dispensePromise]);
+
+    if (notifyResult && dispenseResult) {
+      showToast(`✅ Notification sent + dispense command queued for Module ${moduleId || 1}!`, 'success');
+    } else if (notifyResult) {
+      showToast('Notification sent, but dispense command failed', 'warning');
+    } else if (dispenseResult) {
+      showToast('Dispense command queued, but notification failed', 'warning');
+    } else {
+      showToast('Both notification and dispense command failed', 'error');
+    }
   } catch (err) {
-    showToast('Failed to send notification', 'error');
+    showToast('Failed to send test alert', 'error');
   }
 }
 

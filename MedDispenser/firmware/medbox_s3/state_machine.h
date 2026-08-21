@@ -30,4 +30,8 @@ const char*  stateMachineGetStateName();
 // Get the schedule currently being processed (valid only when not IDLE)
 MedSchedule  stateMachineGetActiveSchedule();
 
+// Externally trigger a dispense cycle (e.g. from web command or test)
+// Only works when the state machine is IDLE. Returns true if accepted.
+bool         stateMachineTriggerDispense(const MedSchedule& schedule);
+
 #endif

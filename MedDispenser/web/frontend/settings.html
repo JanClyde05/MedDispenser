@@ -101,6 +101,96 @@
           </div>
         </section>
       </div>
+
+      <!-- Hardware Test Panel -->
+      <section class="card" style="margin-top: var(--space-8);" id="hardware-test-section">
+        <div class="card-header">
+          <span class="card-title">🔧 Hardware Test Panel</span>
+          <span class="badge badge-info">Debug</span>
+        </div>
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-4);">
+          Test individual hardware components on the ESP32. Commands are queued and polled every ~10 seconds.
+          <br>💡 For instant execution, type <code style="background: var(--color-surface-alt); padding: 2px 6px; border-radius: 4px;">sync</code> in the S3 Serial Monitor after clicking a button.
+        </p>
+
+        <!-- Buzzer & Communication -->
+        <div class="grid grid-2" style="margin-bottom: var(--space-4);">
+          <div class="form-group">
+            <label class="form-label">🔊 Buzzer <span style="color: var(--color-text-dim); font-weight: 400;">(S3 · GPIO 6)</span></label>
+            <button class="btn btn-secondary btn-sm" id="btn-hw-buzz" onclick="testHW('BUZZ')">🔊 Test Buzzer</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📡 S3 ↔ C3 Communication</label>
+            <button class="btn btn-secondary btn-sm" id="btn-hw-ping" onclick="testHW('PING')">📡 Ping C3</button>
+          </div>
+        </div>
+
+        <!-- Module 1 Servos -->
+        <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-3); margin-bottom: var(--space-4);">
+          <label class="form-label">📦 Module 1 — Servo Motors</label>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; margin-bottom: var(--space-2);">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M1 Hatch Servo (C3 · GPIO 1):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('OPEN', 1)">🔓 Open</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('CLOSE', 1)">🔒 Close</button>
+          </div>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M1 Dispenser Servo (C3 · GPIO 0):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('DISPENSE', 1)">⚙️ Dispense</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('HOME', 1)">🏠 Home</button>
+          </div>
+        </div>
+
+        <!-- Module 2 Servos -->
+        <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-3); margin-bottom: var(--space-4);">
+          <label class="form-label">📦 Module 2 — Servo Motors</label>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; margin-bottom: var(--space-2);">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M2 Hatch Servo (C3 · GPIO 4):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('OPEN', 2)">🔓 Open</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('CLOSE', 2)">🔒 Close</button>
+          </div>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M2 Dispenser Servo (C3 · GPIO 3):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('DISPENSE', 2)">⚙️ Dispense</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('HOME', 2)">🏠 Home</button>
+          </div>
+        </div>
+
+        <!-- Module 3 Servos -->
+        <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-3); margin-bottom: var(--space-4);">
+          <label class="form-label">📦 Module 3 — Servo Motors</label>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; margin-bottom: var(--space-2);">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M3 Hatch Servo (C3 · GPIO 6):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('OPEN', 3)">🔓 Open</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('CLOSE', 3)">🔒 Close</button>
+          </div>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+            <span style="font-size: var(--font-size-sm); min-width: 180px; color: var(--color-text-muted);">M3 Dispenser Servo (C3 · GPIO 5):</span>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('DISPENSE', 3)">⚙️ Dispense</button>
+            <button class="btn btn-secondary btn-sm" onclick="testHW('HOME', 3)">🏠 Home</button>
+          </div>
+        </div>
+
+        <!-- IR Sensor Test -->
+        <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-3);">
+          <label class="form-label">🔴 IR Proximity Sensor Test <span style="color: var(--color-text-dim); font-weight: 400;">(S3 · GPIO 5)</span></label>
+          <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-3);">
+            Arm the IR sensor — when it next detects presence, it triggers the selected action once.
+          </p>
+          <div style="display: flex; gap: var(--space-3); align-items: center; margin-bottom: var(--space-3);">
+            <label class="form-label" for="ir-test-module" style="margin-bottom: 0;">Target Module:</label>
+            <select class="form-select" id="ir-test-module" style="width: auto; min-width: 120px;">
+              <option value="1">Module 1</option>
+              <option value="2">Module 2</option>
+              <option value="3">Module 3</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" id="btn-ir-buzz" onclick="testIR('buzz')">🔴→🔊 Buzzer Only</button>
+            <button class="btn btn-secondary btn-sm" id="btn-ir-servo" onclick="testIR('servo')">🔴→⚙️ Open Hatch Only</button>
+            <button class="btn btn-primary btn-sm" id="btn-ir-both" onclick="testIR('both')">🔴→🔊+⚙️ Both</button>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 

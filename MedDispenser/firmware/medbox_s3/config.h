@@ -51,6 +51,10 @@
 #define API_HTTP_TIMEOUT_MS   10000   // HTTP request timeout
 #define API_DEVICE_ID         "medbox-001"   // Unique device identifier
 
+// ── Hardware Test Command Poll ───────────────────────────────────────
+#define API_COMMAND_ENDPOINT  "/api/dispense-command"
+#define API_COMMAND_POLL_MS   10000   // Poll for test commands every 10 seconds
+
 // ── Medication Reminder ───────────────────────────────────────────────────
 #define REMINDER_INTERVAL_MS  300000  // Re-remind every 5 minutes
 #define REMINDER_MAX_RETRIES  12      // Max reminders before giving up (1 hour)

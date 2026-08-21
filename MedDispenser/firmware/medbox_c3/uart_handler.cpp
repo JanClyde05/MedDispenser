@@ -1,5 +1,11 @@
 /*
  * MedBox — UART Handler (C3 side)
+ *
+ * IMPORTANT: Uses Serial1 on dedicated pins for S3 communication.
+ * Serial (USB CDC) is used ONLY for debug output.
+ * This avoids the UART0 conflict on ESP32-C3 SuperMini.
+ *
+ * Requires: "USB CDC On Boot" = Enabled in Arduino IDE board settings.
  */
 
 #include "uart_handler.h"
@@ -7,10 +13,8 @@
 #include "protocol.h"
 #include "servo_controller.h"
 
-// Use Serial0 (default UART) for S3 communication
-// Note: This shares with USB serial on C3 SuperMini.
-// For production, consider using Serial1 with custom pins.
-#define SerialS3 Serial0
+// Dedicated UART for S3 communication (separate from USB debug Serial)
+static HardwareSerial SerialS3(1);  // UART1
 
 static char _rxBuffer[PROTOCOL_MAX_MSG_LEN];
 static int  _rxIndex = 0;
@@ -19,16 +23,17 @@ static int  _rxIndex = 0;
 static void _processCommand(const char* message);
 
 void uartHandlerInit() {
-  // If using separate UART pins:
-  // Serial1.begin(C3_UART_BAUD, SERIAL_8N1, C3_UART_RX_PIN, C3_UART_TX_PIN);
-  // For now, using default Serial which may conflict with USB debug.
-  // Adjust based on actual board wiring.
-  Serial.println(F("UART handler initialized"));
+  SerialS3.begin(C3_UART_BAUD, SERIAL_8N1, C3_UART_RX_PIN, C3_UART_TX_PIN);
+  Serial.println(F("UART handler initialized (Serial1 on RX="));
+  Serial.print(C3_UART_RX_PIN);
+  Serial.print(F(", TX="));
+  Serial.print(C3_UART_TX_PIN);
+  Serial.println(F(")"));
 }
 
 void uartHandlerUpdate() {
-  while (Serial.available()) {
-    char c = Serial.read();
+  while (SerialS3.available()) {
+    char c = SerialS3.read();
 
     if (c == PROTOCOL_TERMINATOR) {
       _rxBuffer[_rxIndex] = '\0';
@@ -44,6 +49,9 @@ static void _processCommand(const char* message) {
   // Parse: CMD,moduleId
   String msg = String(message);
   int delimIdx = msg.indexOf(PROTOCOL_DELIMITER);
+
+  Serial.print(F("S3 → C3: "));
+  Serial.println(msg);
 
   if (delimIdx < 0) {
     uartSendError("UNKNOWN", 0, ERR_PARSE);
@@ -81,8 +89,9 @@ static void _processCommand(const char* message) {
     uartSendResponse(RSP_OK, CMD_STATUS, moduleId);
 
   } else if (cmd == CMD_PING) {
-    Serial.print(RSP_PONG);
-    Serial.print(PROTOCOL_TERMINATOR);
+    SerialS3.print(RSP_PONG);
+    SerialS3.print(PROTOCOL_TERMINATOR);
+    Serial.println(F("PONG sent"));
 
   } else {
     uartSendError(cmd.c_str(), moduleId, ERR_UNKNOWN_CMD);
@@ -90,21 +99,39 @@ static void _processCommand(const char* message) {
 }
 
 void uartSendResponse(const char* prefix, const char* cmd, uint8_t moduleId) {
+  // Send response to S3 over dedicated UART
+  SerialS3.print(prefix);
+  SerialS3.print(PROTOCOL_DELIMITER);
+  SerialS3.print(cmd);
+  SerialS3.print(PROTOCOL_DELIMITER);
+  SerialS3.print(moduleId);
+  SerialS3.print(PROTOCOL_TERMINATOR);
+
+  // Also echo to USB debug
+  Serial.print(F("C3 → S3: "));
   Serial.print(prefix);
   Serial.print(PROTOCOL_DELIMITER);
   Serial.print(cmd);
   Serial.print(PROTOCOL_DELIMITER);
-  Serial.print(moduleId);
-  Serial.print(PROTOCOL_TERMINATOR);
+  Serial.println(moduleId);
 }
 
 void uartSendError(const char* cmd, uint8_t moduleId, int errorCode) {
-  Serial.print(RSP_ERR);
-  Serial.print(PROTOCOL_DELIMITER);
+  // Send error to S3 over dedicated UART
+  SerialS3.print(RSP_ERR);
+  SerialS3.print(PROTOCOL_DELIMITER);
+  SerialS3.print(cmd);
+  SerialS3.print(PROTOCOL_DELIMITER);
+  SerialS3.print(moduleId);
+  SerialS3.print(PROTOCOL_DELIMITER);
+  SerialS3.print(errorCode);
+  SerialS3.print(PROTOCOL_TERMINATOR);
+
+  // Also echo to USB debug
+  Serial.print(F("C3 ERR: "));
   Serial.print(cmd);
-  Serial.print(PROTOCOL_DELIMITER);
+  Serial.print(F(" M"));
   Serial.print(moduleId);
-  Serial.print(PROTOCOL_DELIMITER);
-  Serial.print(errorCode);
-  Serial.print(PROTOCOL_TERMINATOR);
+  Serial.print(F(" code="));
+  Serial.println(errorCode);
 }
