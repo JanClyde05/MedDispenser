@@ -1,6 +1,6 @@
 /*
  * MedBox — Buzzer Control
- * Uses LEDC for tone generation on ESP32.
+ * Standard GPIO control compatible with Active and Passive buzzers.
  */
 
 #include "buzzer.h"
@@ -16,9 +16,17 @@ static int  _patternOnMs  = 0;
 static int  _patternOffMs = 0;
 static bool _patternPhaseOn = false;
 
+static void _soundOn() {
+  digitalWrite(BUZZER_PIN, HIGH);
+}
+
+static void _soundOff() {
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
 void buzzerInit() {
-  ledcAttach(BUZZER_PIN, BUZZER_FREQ_HZ, 8);
-  ledcWrite(BUZZER_PIN, 0);
+  pinMode(BUZZER_PIN, OUTPUT);
+  _soundOff();
   Serial.println(F("Buzzer initialized"));
 }
 
@@ -30,7 +38,7 @@ void buzzerUpdate() {
   // Single beep mode (patternTotal == 0)
   if (_patternTotal == 0) {
     if (now >= _actionMs) {
-      ledcWrite(BUZZER_PIN, 0);
+      _soundOff();
       _active = false;
     }
     return;
@@ -41,7 +49,7 @@ void buzzerUpdate() {
 
   if (_patternPhaseOn) {
     if (elapsed >= (unsigned long)_patternOnMs) {
-      ledcWrite(BUZZER_PIN, 0);
+      _soundOff();
       _patternPhaseOn = false;
       _actionMs = now;
     }
@@ -52,7 +60,7 @@ void buzzerUpdate() {
         _active = false;
         return;
       }
-      ledcWrite(BUZZER_PIN, 128);
+      _soundOn();
       _patternPhaseOn = true;
       _actionMs = now;
     }
@@ -61,7 +69,7 @@ void buzzerUpdate() {
 
 void buzzerBeep(int durationMs) {
   _patternTotal = 0;
-  ledcWrite(BUZZER_PIN, 128);
+  _soundOn();
   _actionMs = millis() + durationMs;
   _active = true;
 }
@@ -73,15 +81,16 @@ void buzzerPatternStart(int beepCount, int onMs, int offMs) {
   _patternOffMs = offMs;
   _patternPhaseOn = true;
   _actionMs = millis();
-  ledcWrite(BUZZER_PIN, 128);
+  _soundOn();
   _active = true;
 }
 
 void buzzerStop() {
-  ledcWrite(BUZZER_PIN, 0);
+  _soundOff();
   _active = false;
 }
 
 bool buzzerIsActive() {
   return _active;
 }
+

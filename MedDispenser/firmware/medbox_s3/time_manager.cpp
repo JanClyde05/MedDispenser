@@ -9,7 +9,7 @@
 
 static bool _synced = false;
 static unsigned long _lastSyncAttempt = 0;
-static const unsigned long NTP_RETRY_INTERVAL = 60000; // 1 min
+static const unsigned long NTP_RETRY_INTERVAL = 5000; // Retry NTP every 5 seconds until synced
 
 void timeManagerInit() {
   configTime(NTP_GMT_OFFSET_SEC, NTP_DAYLIGHT_OFFSET, NTP_SERVER);
@@ -25,13 +25,24 @@ void timeManagerUpdate() {
   _lastSyncAttempt = millis();
 
   struct tm timeinfo;
-  if (getLocalTime(&timeinfo, 5000)) {
+  if (getLocalTime(&timeinfo, 3000)) {
     _synced = true;
     Serial.print(F("NTP synced: "));
     Serial.println(timeManagerGetTimeString());
   } else {
     Serial.println(F("NTP sync pending..."));
   }
+}
+
+void timeSetEpoch(unsigned long epochSec) {
+  if (epochSec < 1700000000) return; // Guard against invalid/zero epoch
+  struct timeval tv;
+  tv.tv_sec = (time_t)epochSec;
+  tv.tv_usec = 0;
+  settimeofday(&tv, NULL);
+  _synced = true;
+  Serial.print(F("System time synced from server: "));
+  Serial.println(timeManagerGetTimeString());
 }
 
 bool timeIsSynced() {

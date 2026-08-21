@@ -128,6 +128,34 @@ async function testHW(command, moduleId = 0) {
 }
 
 /**
+ * Send a dispense test command with selected pill count (1, 2, or 3 revolutions).
+ * @param {number} moduleId - Module ID (1-3)
+ */
+async function testHWDispense(moduleId) {
+  const selectElem = document.getElementById(`hw-dose-${moduleId}`);
+  const count = parseInt(selectElem ? selectElem.value : '1');
+
+  try {
+    showToast(`Sending Dispense M${moduleId} (${count} pill(s) / ${count} rev(s))...`, 'info');
+
+    await Api.sendDispenseCommand({
+      moduleId: moduleId,
+      medicineName: `HW_TEST_DISPENSE`,
+      dose: count,
+      time: 'now',
+      type: 'test_hardware',
+      command: 'DISPENSE',
+    });
+
+    showToast(`✅ Dispense M${moduleId} (${count} revs) command queued!`, 'success');
+  } catch (err) {
+    console.error(`Hardware dispense test (M${moduleId}) failed:`, err);
+    showToast(`Failed to send dispense command`, 'error');
+  }
+}
+
+
+/**
  * Send an IR sensor test command — arms the IR sensor to trigger an action on next detection.
  * @param {string} action - 'buzz', 'servo', or 'both'
  */

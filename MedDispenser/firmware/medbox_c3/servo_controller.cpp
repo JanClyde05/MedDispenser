@@ -1,125 +1,123 @@
 /*
  * MedBox — Servo Controller
- *
- * Uses ESP32Servo library (Arduino IDE: install "ESP32Servo" by Kevin Harrington).
- * Maps module IDs to GPIO pins defined in config.h.
- *
- * IMPORTANT: Dispenser step angle is NOT FINALIZED.
- * The DISPENSER_STEP_ANGLE in config.h is a placeholder.
- * Calibrate against the actual spiral/rotor geometry.
+ * Dispenser: 1 revolution cycle (0° -> 180° -> 0°) per pill requested.
+ * Hatch: 90° open, 0° closed.
  */
 
 #include "servo_controller.h"
 #include "config.h"
 #include <ESP32Servo.h>
 
-// ── Servo objects ─────────────────────────────────────────────────────────
-// Index 0 = Module 1 dispenser, Index 1 = Module 1 hatch, etc.
-static Servo _dispenserServo[NUM_MODULES];
-static Servo _hatchServo[NUM_MODULES];
+// Dedicated Servo objects per module
+static Servo _m1Dispenser;  // GPIO 0
+static Servo _m1Hatch;      // GPIO 1
 
-// Current dispenser positions (accumulated angle for indexing)
-static int _dispenserAngle[NUM_MODULES];
+static Servo _m2Dispenser;  // GPIO 3
+static Servo _m2Hatch;      // GPIO 4
 
-// GPIO pin lookup tables
-static const int _dispenserPins[NUM_MODULES] = {
-  SERVO_M1_DISPENSER_PIN,
-  SERVO_M2_DISPENSER_PIN,
-  SERVO_M3_DISPENSER_PIN
-};
+static Servo _m3Dispenser;  // GPIO 5
+static Servo _m3Hatch;      // GPIO 6
 
-static const int _hatchPins[NUM_MODULES] = {
-  SERVO_M1_HATCH_PIN,
-  SERVO_M2_HATCH_PIN,
-  SERVO_M3_HATCH_PIN
-};
+// Helper to get dispenser servo by module ID
+static Servo* _getDispenser(uint8_t moduleId) {
+  if (moduleId == 1) return &_m1Dispenser;
+  if (moduleId == 2) return &_m2Dispenser;
+  if (moduleId == 3) return &_m3Dispenser;
+  return nullptr;
+}
+
+// Helper to get hatch servo by module ID
+static Servo* _getHatch(uint8_t moduleId) {
+  if (moduleId == 1) return &_m1Hatch;
+  if (moduleId == 2) return &_m2Hatch;
+  if (moduleId == 3) return &_m3Hatch;
+  return nullptr;
+}
+
+// Rotate DIY modified 360° dispenser servo 1 full revolution, then detach to hard-stop motor
+static void _rotatePillRevolution(Servo& dispenser, int pin) {
+  dispenser.attach(pin);
+  dispenser.write(DISPENSER_SPEED_FORWARD); // 180° = Full speed spin
+  delay(DISPENSER_REV_TIME_MS);             // 2400ms = 1 full 360° revolution
+  dispenser.detach();                       // Cut signal ➔ Motor stops instantly!
+  delay(300);
+}
 
 void servoControllerInit() {
-  // Allow allocation of all timers for servo library
-  ESP32PWM::allocateTimer(0);
-  ESP32PWM::allocateTimer(1);
-  ESP32PWM::allocateTimer(2);
-  ESP32PWM::allocateTimer(3);
+  // Attach hatch servos to 0° home position
+  _m1Hatch.attach(SERVO_M1_HATCH_PIN);
+  _m2Hatch.attach(SERVO_M2_HATCH_PIN);
+  _m3Hatch.attach(SERVO_M3_HATCH_PIN);
 
-  for (int i = 0; i < NUM_MODULES; i++) {
-    _dispenserServo[i].setPeriodHertz(50);
-    _hatchServo[i].setPeriodHertz(50);
-    _dispenserAngle[i] = DISPENSER_HOME_ANGLE;
-  }
+  _m1Hatch.write(HATCH_CLOSED_ANGLE); // 0°
+  _m2Hatch.write(HATCH_CLOSED_ANGLE); // 0°
+  _m3Hatch.write(HATCH_CLOSED_ANGLE); // 0°
 
-  Serial.print(F("Servo controller initialized: "));
-  Serial.print(NUM_MODULES);
-  Serial.println(F(" modules"));
+  // Dispenser servos remain detached while idle to prevent continuous spin
+  _m1Dispenser.detach();
+  _m2Dispenser.detach();
+  _m3Dispenser.detach();
+
+  Serial.println(F("Servo controller initialized (DIY 360° auto-detach stop)"));
 }
 
 void servoControllerUpdate() {
-  // Currently no background servo tasks.
-  // Future: smooth movement, position feedback, detach idle servos.
+  // Non-blocking update loop
 }
 
-// ── Helper: attach, move, delay, detach ─────────────────────────────────
-static void _moveServo(Servo& servo, int pin, int angle) {
-  servo.attach(pin, SERVO_MIN_PULSE_US, SERVO_MAX_PULSE_US);
-  servo.write(angle);
-  delay(SERVO_MOVE_DELAY_MS);  // Blocking — acceptable for C3 single-task role
-  // Detach after movement to reduce power/jitter
-  delay(SERVO_DETACH_DELAY_MS);
-  servo.detach();
-}
+void servoDispense(uint8_t moduleId, uint8_t count) {
+  if (count == 0) count = 1;
 
-static int _moduleIndex(uint8_t moduleId) {
-  return moduleId - 1;  // moduleId is 1-based, array is 0-based
-}
-
-// ── Public API ──────────────────────────────────────────────────────────
-
-void servoDispense(uint8_t moduleId) {
-  int idx = _moduleIndex(moduleId);
-  if (idx < 0 || idx >= NUM_MODULES) return;
-
-  // Advance dispenser by one step
-  _dispenserAngle[idx] += DISPENSER_STEP_ANGLE;
-  if (_dispenserAngle[idx] >= 360) {
-    _dispenserAngle[idx] -= 360;
-  }
-
-  Serial.print(F("Dispense M"));
+  Serial.print(F("Dispensing M"));
   Serial.print(moduleId);
-  Serial.print(F(" → angle "));
-  Serial.println(_dispenserAngle[idx]);
+  Serial.print(F(" → "));
+  Serial.print(count);
+  Serial.println(F(" pill(s)"));
 
-  _moveServo(_dispenserServo[idx], _dispenserPins[idx], _dispenserAngle[idx]);
+  Servo* d = _getDispenser(moduleId);
+  if (!d) return;
+
+  int pin = (moduleId == 1) ? SERVO_M1_DISPENSER_PIN :
+            (moduleId == 2) ? SERVO_M2_DISPENSER_PIN : SERVO_M3_DISPENSER_PIN;
+
+  // Perform 1 full 360° revolution (attach ➔ spin ➔ detach) for each pill
+  for (uint8_t i = 0; i < count; i++) {
+    Serial.print(F("Pill #"));
+    Serial.println(i + 1);
+    _rotatePillRevolution(*d, pin);
+  }
 }
 
 void servoOpenHatch(uint8_t moduleId) {
-  int idx = _moduleIndex(moduleId);
-  if (idx < 0 || idx >= NUM_MODULES) return;
-
-  Serial.print(F("Open hatch M"));
+  Serial.print(F("Opening hatch M"));
   Serial.println(moduleId);
 
-  _moveServo(_hatchServo[idx], _hatchPins[idx], HATCH_OPEN_ANGLE);
+  Servo* h = _getHatch(moduleId);
+  if (h) {
+    h->write(HATCH_OPEN_ANGLE);  // 90°
+  }
 }
 
 void servoCloseHatch(uint8_t moduleId) {
-  int idx = _moduleIndex(moduleId);
-  if (idx < 0 || idx >= NUM_MODULES) return;
-
-  Serial.print(F("Close hatch M"));
+  Serial.print(F("Closing hatch M"));
   Serial.println(moduleId);
 
-  _moveServo(_hatchServo[idx], _hatchPins[idx], HATCH_CLOSED_ANGLE);
+  Servo* h = _getHatch(moduleId);
+  if (h) {
+    h->write(HATCH_CLOSED_ANGLE); // 0°
+  }
 }
 
 void servoHome(uint8_t moduleId) {
-  int idx = _moduleIndex(moduleId);
-  if (idx < 0 || idx >= NUM_MODULES) return;
-
-  _dispenserAngle[idx] = DISPENSER_HOME_ANGLE;
-
-  Serial.print(F("Home M"));
+  Serial.print(F("Homing M"));
   Serial.println(moduleId);
 
-  _moveServo(_dispenserServo[idx], _dispenserPins[idx], DISPENSER_HOME_ANGLE);
-  _moveServo(_hatchServo[idx], _hatchPins[idx], HATCH_CLOSED_ANGLE);
+  Servo* d = _getDispenser(moduleId);
+  Servo* h = _getHatch(moduleId);
+
+  if (d) d->detach();                  // Hard stop continuous 360° dispenser motor
+  if (h) h->write(HATCH_CLOSED_ANGLE);   // Close hatch (0°)
 }
+
+
+

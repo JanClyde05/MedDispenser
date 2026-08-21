@@ -14,9 +14,8 @@
 // Available GPIOs vary by board revision. Avoid strapping pins (GPIO0, GPIO45, GPIO46).
 
 // ── UART to ESP32-C3 ──────────────────────────────────────────────────────
-// Using UART1 (hardware serial). GPIO pins are NOT FINALIZED.
-#define S3_UART_TX_PIN        17   // S3 TX → C3 RX
-#define S3_UART_RX_PIN        18   // S3 RX ← C3 TX
+#define S3_UART_TX_PIN        1    // S3 TX (GPIO 1) → C3 RX (GPIO 20)
+#define S3_UART_RX_PIN        2    // S3 RX (GPIO 2) ← C3 TX (GPIO 21)
 #define S3_UART_BAUD          115200
 
 // ── Proximity / IR Sensor ─────────────────────────────────────────────────
@@ -42,7 +41,8 @@
 #define NTP_DAYLIGHT_OFFSET   0
 
 // ── Backend API ───────────────────────────────────────────────────────────
-#define API_BASE_URL          "https://modular-med-dispenser.netlify.app"
+//#define API_BASE_URL          "https://modular-med-dispenser.netlify.app"  // Uncomment if need for online deployment
+#define API_BASE_URL          "http://192.168.123.6:8888"                    // Uncomment if need for local testing ; use ipconfig to get your PC IPV4 Address
 #define API_SYNC_ENDPOINT     "/api/sync"
 #define API_LOG_ENDPOINT      "/api/dispense-log"
 #define API_NOTIFY_ENDPOINT   "/api/notify"

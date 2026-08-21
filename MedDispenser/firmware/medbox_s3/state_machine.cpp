@@ -16,17 +16,18 @@
 #include "time_manager.h"
 #include "api_client.h"
 
-static SystemState _state = STATE_IDLE;
-static MedSchedule _activeSchedule;
+static SystemState   _state = STATE_IDLE;
 static unsigned long _stateEnteredMs = 0;
 static unsigned long _lastReminderMs = 0;
-static int _reminderCount = 0;
+static int           _reminderCount = 0;
+static MedSchedule   _activeSchedule;
+static bool          _cmdSentInState = false;
 
 static void _enterState(SystemState newState);
 
 void stateMachineInit() {
-  _state = STATE_IDLE;
-  Serial.println(F("State machine: IDLE"));
+  _enterState(STATE_IDLE);
+  Serial.println(F("State machine initialized"));
 }
 
 void stateMachineUpdate() {
@@ -35,7 +36,7 @@ void stateMachineUpdate() {
 
   switch (_state) {
 
-    // ── IDLE: Wait for a pending schedule ─────────────────────────────
+    // ── IDLE: Check for scheduled dispense triggers ─────────────────
     case STATE_IDLE:
       if (scheduleHasPending()) {
         _activeSchedule = scheduleGetPending();
@@ -43,12 +44,13 @@ void stateMachineUpdate() {
       }
       break;
 
-    // ── REMINDER: Buzz + notify, then wait for user ──────────────────
+    // ── REMINDER: Alarm buzzer + notify ──────────────────────────────
     case STATE_REMINDER:
-      // Initial buzz
-      buzzerPatternStart(BUZZER_PATTERN_COUNT, BUZZER_ON_DURATION_MS / BUZZER_PATTERN_COUNT, 200);
       _reminderCount = 1;
       _lastReminderMs = now;
+
+      // Sound buzzer alarm pattern immediately when reminder starts
+      buzzerPatternStart(3, 500, 300);
 
       // Send ntfy notification via backend
       {
@@ -64,31 +66,58 @@ void stateMachineUpdate() {
       Serial.print(F("REMINDER: "));
       Serial.print(_activeSchedule.medicineName);
       Serial.print(F(" Module "));
-      Serial.println(_activeSchedule.moduleId);
+      Serial.print(_activeSchedule.moduleId);
+      Serial.print(F(" Dose: "));
+      Serial.println(_activeSchedule.pillsPerDose);
 
-      _enterState(STATE_WAITING_FOR_USER);
+      // Dispense pill into internal staging while hatch stays CLOSED (0°)
+      _enterState(STATE_DISPENSING);
       break;
 
-    // ── WAITING_FOR_USER: Poll proximity, re-remind periodically ─────
+    // ── DISPENSING: Command C3 to spin dispenser (hatch stays CLOSED) 
+    case STATE_DISPENSING:
+      if (!_cmdSentInState) {
+        uint8_t count = _activeSchedule.pillsPerDose;
+        if (count == 0) count = 1;
+
+        Serial.print(F("Dispensing pill(s) behind closed hatch: "));
+        Serial.println(count);
+
+        uartSendCommandEx(CMD_DISPENSE, _activeSchedule.moduleId, count);
+        _cmdSentInState = true;
+      }
+
+      // Wait for C3 to finish 360° revolutions
+      {
+        uint8_t count = _activeSchedule.pillsPerDose;
+        if (count == 0) count = 1;
+        unsigned long waitMs = (unsigned long)count * 3000 + 500;
+        if (elapsed >= waitMs) {
+          Serial.println(F("Pill(s) dropped into compartment. Waiting for hand at IR sensor..."));
+          _enterState(STATE_WAITING_FOR_USER);
+        }
+      }
+      break;
+
+    // ── WAITING_FOR_USER: Hatch CLOSED (0°) — waiting for IR hand sensor
     case STATE_WAITING_FOR_USER:
+      // Hatch opens ONLY when IR proximity sensor detects hand presence!
       if (proximityIsDetected()) {
-        Serial.println(F("User detected — opening hatch"));
+        Serial.println(F("🔴 IR Sensor Activated! Opening hatch (90°)..."));
         _enterState(STATE_HATCH_OPENING);
         break;
       }
 
-      // Re-remind every REMINDER_INTERVAL_MS
+      // Re-remind every REMINDER_INTERVAL_MS with buzzer if user hasn't approached
       if ((now - _lastReminderMs) >= REMINDER_INTERVAL_MS) {
         _reminderCount++;
         if (_reminderCount > REMINDER_MAX_RETRIES) {
           Serial.println(F("Max reminders reached — logging missed dose"));
 
-          // Log missed dose to backend
           apiClientLogDispense(_activeSchedule.moduleId,
                                _activeSchedule.medicineName,
                                _activeSchedule.pillsPerDose, "missed");
 
-          // Send missed notification via ntfy
           {
             char timeBuf[6];
             snprintf(timeBuf, sizeof(timeBuf), "%02d:%02d",
@@ -105,46 +134,38 @@ void stateMachineUpdate() {
           _enterState(STATE_IDLE);
           break;
         }
-        buzzerPatternStart(BUZZER_PATTERN_COUNT, BUZZER_ON_DURATION_MS / BUZZER_PATTERN_COUNT, 200);
+        buzzerPatternStart(3, 500, 300);
         _lastReminderMs = now;
         Serial.print(F("Re-reminder #"));
         Serial.println(_reminderCount);
       }
       break;
 
-    // ── HATCH_OPENING: Command C3 to open hatch ─────────────────────
+    // ── HATCH_OPENING: Command C3 to open hatch (90°) ────────────────
     case STATE_HATCH_OPENING:
-      uartSendCommand(CMD_OPEN, _activeSchedule.moduleId);
-      // TODO: wait for acknowledgement / hatch sensor confirmation
-      // For now, proceed after a fixed delay
-      if (elapsed >= 1000) {
-        _enterState(STATE_DISPENSING);
+      if (!_cmdSentInState) {
+        uartSendCommand(CMD_OPEN, _activeSchedule.moduleId);
+        _cmdSentInState = true;
       }
-      break;
-
-    // ── DISPENSING: Command C3 to dispense ───────────────────────────
-    case STATE_DISPENSING:
-      // Send one DISPENSE command per pill
-      // For multiple pills, the C3 can handle multi-step indexing,
-      // or S3 sends N commands. Keeping it simple: one command = one dose event.
-      uartSendCommand(CMD_DISPENSE, _activeSchedule.moduleId);
-      // TODO: for pillsPerDose > 1, implement multi-dispense loop
-      if (elapsed >= 1500) {
+      if (elapsed >= 1000) {
         _enterState(STATE_USER_TAKING_MEDICINE);
       }
       break;
 
-    // ── USER_TAKING_MEDICINE: Wait for user to retrieve ──────────────
+    // ── USER_TAKING_MEDICINE: Hatch OPEN (90°) for user to retrieve ────
     case STATE_USER_TAKING_MEDICINE:
-      // Wait a fixed duration for the user to take the medicine
-      if (elapsed >= HATCH_OPEN_WAIT_MS) {
+      // Keep hatch open for 5 seconds for user to retrieve pill
+      if (elapsed >= 5000) {
         _enterState(STATE_HATCH_CLOSING);
       }
       break;
 
-    // ── HATCH_CLOSING: Command C3 to close hatch ────────────────────
+    // ── HATCH_CLOSING: Command C3 to close hatch (0°) ────────────────
     case STATE_HATCH_CLOSING:
-      uartSendCommand(CMD_CLOSE, _activeSchedule.moduleId);
+      if (!_cmdSentInState) {
+        uartSendCommand(CMD_CLOSE, _activeSchedule.moduleId);
+        _cmdSentInState = true;
+      }
       if (elapsed >= 1000) {
         _enterState(STATE_COMPLETED);
       }
@@ -182,6 +203,7 @@ void stateMachineUpdate() {
 static void _enterState(SystemState newState) {
   _state = newState;
   _stateEnteredMs = millis();
+  _cmdSentInState = false;  // Reset command-sent flag on state transition!
 }
 
 SystemState stateMachineGetState() {

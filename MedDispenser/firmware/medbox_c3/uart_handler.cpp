@@ -13,8 +13,8 @@
 #include "protocol.h"
 #include "servo_controller.h"
 
-// Dedicated UART for S3 communication (separate from USB debug Serial)
-static HardwareSerial SerialS3(1);  // UART1
+// Dedicated UART0 for S3 communication on pins 20/21 (separate from USB CDC Serial debug)
+static HardwareSerial SerialS3(0);  // UART0
 
 static char _rxBuffer[PROTOCOL_MAX_MSG_LEN];
 static int  _rxIndex = 0;
@@ -69,7 +69,13 @@ static void _processCommand(const char* message) {
 
   // ── Dispatch commands ────────────────────────────────────────────
   if (cmd == CMD_DISPENSE) {
-    servoDispense(moduleId);
+    int count = 1;
+    int secondDelim = msg.indexOf(PROTOCOL_DELIMITER, delimIdx + 1);
+    if (secondDelim > 0) {
+      count = msg.substring(secondDelim + 1).toInt();
+      if (count <= 0) count = 1;
+    }
+    servoDispense(moduleId, count);
     uartSendResponse(RSP_OK, CMD_DISPENSE, moduleId);
 
   } else if (cmd == CMD_OPEN) {

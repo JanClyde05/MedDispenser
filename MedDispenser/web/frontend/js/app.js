@@ -326,12 +326,12 @@ function startScheduleChecker() {
 
 // ── Init ──────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Only run dashboard logic on the dashboard page
+  // Always start the automatic schedule checker on all pages
+  startScheduleChecker();
+
+  // Dashboard-specific initialization
   if (document.getElementById('device-hub')) {
     loadDashboard();
-
-    // Start the automatic schedule checker
-    startScheduleChecker();
 
     // Auto-refresh device status every 60 seconds
     setInterval(() => {

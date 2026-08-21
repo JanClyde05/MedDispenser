@@ -60,6 +60,19 @@ bool uartSendCommand(const char* cmd, uint8_t moduleId) {
   return true;
 }
 
+bool uartSendCommandEx(const char* cmd, uint8_t moduleId, uint8_t extraVal) {
+  _acknowledged = false;
+
+  String msg = String(cmd) + PROTOCOL_DELIMITER + String(moduleId) + PROTOCOL_DELIMITER + String(extraVal);
+  SerialC3.print(msg);
+  SerialC3.print(PROTOCOL_TERMINATOR);
+
+  Serial.print(F("S3 → C3: "));
+  Serial.println(msg);
+
+  return true;
+}
+
 bool uartLastAcknowledged() {
   return _acknowledged;
 }

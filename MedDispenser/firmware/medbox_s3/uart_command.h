@@ -13,6 +13,7 @@ void uartCommandUpdate();
 
 // Send a command to the C3. Returns true if sent successfully.
 bool uartSendCommand(const char* cmd, uint8_t moduleId);
+bool uartSendCommandEx(const char* cmd, uint8_t moduleId, uint8_t extraVal);
 
 // Check if the last command was acknowledged
 bool uartLastAcknowledged();

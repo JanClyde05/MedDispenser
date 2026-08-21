@@ -25,6 +25,15 @@ static unsigned long _lastHeartbeatMs = 0;
 static unsigned long _lastCmdPollMs = 0;
 static WiFiClientSecure _secureClient;
 
+// Helper to support both HTTP (localhost testing) and HTTPS (Netlify cloud)
+static void _beginHttp(HTTPClient& http, const String& url) {
+  if (url.startsWith("https://")) {
+    http.begin(_secureClient, url);
+  } else {
+    http.begin(url);  // Uses standard unencrypted WiFiClient for http://
+  }
+}
+
 // ── IR Test Mode State ───────────────────────────────────────────────
 static bool    _irTestActive  = false;
 static uint8_t _irTestModule  = 1;
@@ -97,7 +106,7 @@ bool apiClientSyncSchedules() {
   Serial.print(F("API sync: GET "));
   Serial.println(url);
 
-  http.begin(_secureClient, url);
+  _beginHttp(http, url);
   http.setTimeout(API_HTTP_TIMEOUT_MS);
 
   int httpCode = http.GET();
@@ -120,9 +129,10 @@ bool apiClientSyncSchedules() {
     return false;
   }
 
-  // Optional: sync server time
+  // Sync server time to ESP32 system clock
   if (doc["serverTime"].is<unsigned long>()) {
-    // Could update RTC here if needed
+    unsigned long serverEpoch = doc["serverTime"].as<unsigned long>();
+    timeSetEpoch(serverEpoch);
   }
 
   JsonArray schedules = doc["schedules"].as<JsonArray>();
@@ -227,7 +237,7 @@ void apiClientLogDispense(uint8_t moduleId, const char* medicineName,
   String body;
   serializeJson(doc, body);
 
-  http.begin(_secureClient, url);
+  _beginHttp(http, url);
   http.setTimeout(API_HTTP_TIMEOUT_MS);
   http.addHeader("Content-Type", "application/json");
 
@@ -258,7 +268,7 @@ void apiClientNotify(uint8_t moduleId, const char* medicineName,
   String body;
   serializeJson(doc, body);
 
-  http.begin(_secureClient, url);
+  _beginHttp(http, url);
   http.setTimeout(API_HTTP_TIMEOUT_MS);
   http.addHeader("Content-Type", "application/json");
 
@@ -291,7 +301,7 @@ void apiClientHeartbeat() {
   String body;
   serializeJson(doc, body);
 
-  http.begin(_secureClient, url);
+  _beginHttp(http, url);
   http.setTimeout(API_HTTP_TIMEOUT_MS);
   http.addHeader("Content-Type", "application/json");
 
@@ -315,7 +325,7 @@ static void _apiClientPollCommands() {
   HTTPClient http;
   String url = String(API_BASE_URL) + API_COMMAND_ENDPOINT;
 
-  http.begin(_secureClient, url);
+  _beginHttp(http, url);
   http.setTimeout(API_HTTP_TIMEOUT_MS);
 
   int httpCode = http.GET();
@@ -345,14 +355,30 @@ static void _apiClientPollCommands() {
     if (strcmp(type, "test_hardware") == 0) {
       _processTestCommand(cmd);
       hasTestCommands = true;
+    } else if (strcmp(type, "test") == 0 || strcmp(type, "scheduled") == 0 || strcmp(type, "reminder") == 0) {
+      MedSchedule triggerSched;
+      memset(&triggerSched, 0, sizeof(triggerSched));
+      triggerSched.active       = true;
+      triggerSched.moduleId     = cmd["moduleId"] | 1;
+      triggerSched.pillsPerDose = cmd["dose"] | 1;
+      triggerSched.enabled      = true;
+
+      const char* medName = cmd["medicineName"] | "Test";
+      strncpy(triggerSched.medicineName, medName, sizeof(triggerSched.medicineName) - 1);
+      triggerSched.medicineName[sizeof(triggerSched.medicineName) - 1] = '\0';
+
+      if (stateMachineTriggerDispense(triggerSched)) {
+        Serial.print(F("[CmdPoll] Triggered dispense & buzzer for: "));
+        Serial.println(triggerSched.medicineName);
+      }
+      hasTestCommands = true;
     }
-    // Non-test commands are handled by the sync flow (apiClientSyncSchedules)
   }
 
   // Clear the command queue after processing
   if (hasTestCommands) {
     HTTPClient httpDel;
-    httpDel.begin(_secureClient, url);
+    _beginHttp(httpDel, url);
     httpDel.setTimeout(API_HTTP_TIMEOUT_MS);
     httpDel.addHeader("Content-Type", "application/json");
     httpDel.sendRequest("DELETE", "{\"clearAll\":true}");

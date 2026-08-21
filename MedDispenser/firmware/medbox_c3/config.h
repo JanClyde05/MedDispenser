@@ -19,10 +19,9 @@
 // GPIO20/21 = default UART0 (used for debug / S3 comms)
 
 // ── UART from ESP32-S3 ────────────────────────────────────────────────────
-// Using default UART0 pins for S3 communication.
-// If USB debug is also needed, use UART1 or software serial.
-#define C3_UART_RX_PIN        20   // C3 RX ← S3 TX
-#define C3_UART_TX_PIN        21   // C3 TX → S3 RX
+// Header labels on C3 SuperMini: RX = GPIO 20, TX = GPIO 21
+#define C3_UART_RX_PIN        20   // C3 RX ← S3 TX (GPIO 17)
+#define C3_UART_TX_PIN        21   // C3 TX → S3 RX (GPIO 18)
 #define C3_UART_BAUD          115200
 
 // ── Servo GPIO Map ────────────────────────────────────────────────────────
@@ -48,11 +47,11 @@
 #define HATCH_CLOSED_ANGLE    0     // Hatch closed position (degrees)
 #define HATCH_OPEN_ANGLE      90    // Hatch open position (degrees)
 
-// Dispenser positions
-#define DISPENSER_HOME_ANGLE  0     // Dispenser home/rest position
-// The dispense step angle depends on the spiral/rotor geometry.
-// Example: 24-pocket rotor → 15° per pocket. NOT FINALIZED.
-#define DISPENSER_STEP_ANGLE  15    // Degrees per single dispense index
+// Dispenser 360° Revolution Constants (SG90R 360° Continuous Rotation)
+#define DISPENSER_HOME_ANGLE     0     // Home position
+#define DISPENSER_SPEED_FORWARD  180   // Full speed forward for SG90R 360° rotation
+#define DISPENSER_SPEED_STOP     90    // Neutral / Stop position for SG90R 360°
+#define DISPENSER_REV_TIME_MS    2400  // Milliseconds required for 1 full 360° physical revolution
 
 // ── Servo Timing ──────────────────────────────────────────────────────────
 #define SERVO_MIN_PULSE_US    500   // Typical SG90-class min pulse
